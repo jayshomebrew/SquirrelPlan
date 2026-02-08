@@ -60,12 +60,13 @@
                 <!-- Left Column: Navigation -->
                 <div class="col-md-2">
                     <nav id="financial-nav" class="nav flex-column">
-                        <a class="nav-link active" href="#section-assets" data-i18n-key="assetsAccordionButton">Assets</a>
+                        <a class="nav-link active" href="#section-retirement" data-i18n-key="retirementPlanningAccordionButton">Household Profile</a>
+                        <a class="nav-link" href="#section-assets" data-i18n-key="assetsAccordionButton">Assets</a>
                         <a class="nav-link" href="#section-liabilities" data-i18n-key="liabilitiesAccordionButton">Liabilities</a>
                         <a class="nav-link" href="#section-income" data-i18n-key="incomeAccordionButton">Income</a>
                         <a class="nav-link" href="#section-expenses" data-i18n-key="expensesAccordionButton">Expenses</a>
                         <a class="nav-link" href="#section-allocation" data-i18n-key="savingsAllocationAccordionButton">Savings Allocation</a>
-                        <a class="nav-link" href="#section-retirement" data-i18n-key="retirementPlanningAccordionButton">Retirement Planning</a>
+                        <a class="nav-link" href="#section-pension" data-i18n-key="pensionAccordionButton">Pension</a>
                         <a class="nav-link" href="#section-advanced" data-i18n-key="advancedAccordionButton">Advanced</a>
                     </nav>
                 </div>
@@ -73,8 +74,40 @@
                 <!-- Right Column: Content -->
                 <div class="col-md-10">
                     <section id="financial-data-content">
+                        <!-- Retirement Section -->
+                        <div id="section-retirement" class="content-section">
+                            <h3 data-i18n-key="retirementPlanningAccordionButton">Household Profile</h3>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="current-age" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="currentAgeTooltip" data-i18n-key="currentAgeLabel">Current Age <i class="bi bi-info-circle"></i></label>
+                                    <input type="text" class="form-control" id="current-age" aria-label="Current age">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="pension-age" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="legalRetirementAgeTooltip" data-i18n-key="legalRetirementAgeLabel">Legal Retirement Age <i class="bi bi-info-circle"></i></label>
+                                    <input type="text" class="form-control" id="pension-age" aria-label="Retirement age">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pension Section -->
+                        <div id="section-pension" class="content-section" style="display: none;">
+                            <h3 data-i18n-key="pensionAccordionButton">Pension</h3>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="estimated-pension" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="monthlyPensionTooltip" data-i18n-key="monthlyPensionLabel">Pension (net) <i class="bi bi-info-circle"></i></label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="estimated-pension" aria-label="Estimated pension net">
+                                        <select class="form-select" id="pension-frequency" aria-label="Pension frequency">
+                                            <option value="monthly" selected>Monthly</option>
+                                            <option value="annual">Annual</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Assets Section -->
-                        <div id="section-assets" class="content-section">
+                        <div id="section-assets" class="content-section" style="display: none;">
                             <h3 data-i18n-key="assetsAccordionButton">Assets</h3>
                             <div id="asset-categories-container"></div>
                             <button class="btn btn-secondary mt-3" id="add-asset-category-btn" data-i18n-key="newAssetButton">New Asset Class</button>
@@ -106,25 +139,6 @@
                             <h3 data-i18n-key="savingsAllocationAccordionButton">Savings Allocation</h3>
                             <div id="allocation-periods-container"></div>
                             <button class="btn btn-secondary mt-3" id="add-allocation-period-btn" data-i18n-key="newAllocationPeriodButton">New Allocation Period</button>
-                        </div>
-
-                        <!-- Retirement Section -->
-                        <div id="section-retirement" class="content-section" style="display: none;">
-                            <h3 data-i18n-key="retirementPlanningAccordionButton">Retirement Planning</h3>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <label for="current-age" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="currentAgeTooltip" data-i18n-key="currentAgeLabel">Current Age <i class="bi bi-info-circle"></i></label>
-                                    <input type="text" class="form-control" id="current-age" aria-label="Current age">
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="pension-age" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="legalRetirementAgeTooltip" data-i18n-key="legalRetirementAgeLabel">Legal Retirement Age <i class="bi bi-info-circle"></i></label>
-                                    <input type="text" class="form-control" id="pension-age" aria-label="Retirement age">
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="estimated-pension" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="monthlyPensionTooltip" data-i18n-key="monthlyPensionLabel">Monthly Pension (net) <i class="bi bi-info-circle"></i></label>
-                                    <input type="text" class="form-control" id="estimated-pension" aria-label="Estimated monthly pension net">
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Advanced Section -->
@@ -191,12 +205,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p data-i18n-key="helpModalWelcome">Welcome to the Interactive Wealth Planner!</p>
+                    <p data-i18n-key="helpModalWelcome">Welcome to Squirrel Plan!</p>
                     <p data-i18n-key="helpModalIntro">This free and open source tool helps you plan and visualize your financial future.</p>
                                         <h6 data-i18n-key="helpModalHowToUse">How to use:</h6>                    <ol>
                         <li data-i18n-key="helpModalStep1"><strong>Financial Data:</strong> Fill in your assets (e.g., savings, investments), liabilities (e.g., loans), monthly income, and monthly expenses. For assets and liabilities, you can specify an annual return or interest rate. For income and expenses, you can specify an annual increase.</li>
                         <li data-i18n-key="helpModalStep2"><strong>Savings Allocation:</strong> Define how your surplus savings are allocated to your different asset classes. You can set up different allocation strategies for different periods of your life.</li>
-                        <li data-i18n-key="helpModalStep3"><strong>Retirement Planning:</strong> Enter your current age, the legal retirement age, and your estimated net monthly pension from the government.</li>
+                        <li data-i18n-key="helpModalStep3"><strong>Household Profile:</strong> Enter your current age and the legal retirement age.</li>
+                        <li data-i18n-key="helpModalStepPension"><strong>Pension:</strong> Enter your estimated net monthly pension from the government.</li>
                         <li data-i18n-key="helpModalStep4"><strong>Advanced Settings:</strong> Fine-tune the simulation with parameters like the expected annual inflation rate. You can also set a desired early retirement age and a withdrawal rate for your investments during retirement.</li>
                         <li data-i18n-key="helpModalStep5"><strong>Run Simulation:</strong>
                             <ul>

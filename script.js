@@ -10,6 +10,7 @@ window.SquirrelPlanApp = {};
             pensionAge: '65',
             earlyRetirementAge: '',
             estimatedPension: '1500',
+            pensionFrequency: 'monthly',
             withdrawalRate: '',
             incomes: [],
             expenses: [],
@@ -551,12 +552,19 @@ window.SquirrelPlanApp = {};
                 });
             });
 
+            const pensionFrequency = document.getElementById('pension-frequency').value;
+            let estimatedPension = parseFormattedNumber(document.getElementById('estimated-pension').value) || 0;
+            if (pensionFrequency === 'annual') {
+                estimatedPension /= 12;
+            }
+
             return {
                 currentAge: parseInt(parseFormattedNumber(document.getElementById('current-age').value)) || 0,
                 inflation: parseFormattedNumber(document.getElementById('inflation').value) / 100 || 0,
                 pensionAge: parseInt(parseFormattedNumber(document.getElementById('pension-age').value)) || 0,
                 earlyRetirementAge: parseInt(parseFormattedNumber(document.getElementById('early-retirement-age').value)) || 0,
-                estimatedPension: parseFormattedNumber(document.getElementById('estimated-pension').value) || 0,
+                estimatedPension: estimatedPension,
+                pensionFrequency: pensionFrequency,
                 withdrawalRate: parseFormattedNumber(document.getElementById('withdrawal-rate').value) / 100 || 0,
                 incomes: getCategoryData(incomeCategoriesContainer, 'income'),
                 expenses: getCategoryData(expenseCategoriesContainer, 'expense'),
@@ -814,7 +822,15 @@ window.SquirrelPlanApp = {};
             document.getElementById('inflation').value = String(data.inflation * 100);
             document.getElementById('pension-age').value = String(data.pensionAge);
             document.getElementById('early-retirement-age').value = String(data.earlyRetirementAge || '');
-            document.getElementById('estimated-pension').value = String(data.estimatedPension);
+
+            const pensionFrequency = data.pensionFrequency || 'monthly';
+            document.getElementById('pension-frequency').value = pensionFrequency;
+            let estimatedPension = data.estimatedPension;
+            if (pensionFrequency === 'annual') {
+                estimatedPension *= 12;
+            }
+            document.getElementById('estimated-pension').value = String(estimatedPension);
+
             document.getElementById('withdrawal-rate').value = String(data.withdrawalRate * 100);
 
             incomeCategoriesContainer.innerHTML = '';
@@ -849,6 +865,11 @@ window.SquirrelPlanApp = {};
             applyNumberFormatting(document.body);
             initializeSortable();
             initializeTooltips();
+        manageSlider(document.getElementById('current-age'));
+        manageSlider(document.getElementById('pension-age'));
+        manageSlider(document.getElementById('inflation'));
+        manageSlider(document.getElementById('withdrawal-rate'));
+        manageSlider(document.getElementById('early-retirement-age'));
         }
 
         function renderTable(results) {
@@ -1329,14 +1350,44 @@ window.SquirrelPlanApp = {};
 
         document.getElementById('financial-data-content').addEventListener('change', autoRunSimulationIfEnabled);
 
+        let previousPensionFrequency;
+        const pensionFrequencySelector = document.getElementById('pension-frequency');
+
+        pensionFrequencySelector.addEventListener('focus', (e) => {
+            previousPensionFrequency = e.target.value;
+        });
+
+        pensionFrequencySelector.addEventListener('change', (e) => {
+            const pensionInput = document.getElementById('estimated-pension');
+            let currentValue = parseFormattedNumber(pensionInput.value) || 0;
+            const newFrequency = e.target.value;
+
+            if (newFrequency === 'annual' && previousPensionFrequency === 'monthly') {
+                pensionInput.value = formatNumberForDisplay(currentValue * 12, formattingRules['#estimated-pension']);
+            } else if (newFrequency === 'monthly' && previousPensionFrequency === 'annual') {
+                pensionInput.value = formatNumberForDisplay(currentValue / 12, formattingRules['#estimated-pension']);
+            }
+            previousPensionFrequency = newFrequency;
+            autoRunSimulationIfEnabled();
+        });
+
         function manageSlider(input) {
-            if (input.parentElement.querySelector('.temp-slider')) return;
-            const slider = document.createElement('input');
-            slider.type = 'range';
-            slider.classList.add('form-range', 'mt-1', 'temp-slider');
+            let slider = input.parentElement.querySelector('.permanent-slider');
+            const isNew = !slider;
+            if (isNew) {
+                slider = document.createElement('input');
+                slider.type = 'range';
+                slider.classList.add('form-range', 'mt-1', 'permanent-slider');
+            }
+
             let min = 0, max = 100, step = 1;
 
             switch (input.id) {
+                case 'current-age': min = 18; max = 100; step = 1; break;
+                case 'pension-age':
+                    min = parseInt(document.getElementById('current-age').value) || 18;
+                    max = 80;
+                    break;
                 case 'inflation': max = 20; step = 0.1; break;
                 case 'withdrawal-rate': max = 15; step = 0.1; break;
                 case 'early-retirement-age':
@@ -1351,32 +1402,24 @@ window.SquirrelPlanApp = {};
             slider.step = step;
             slider.value = isNaN(parseFormattedNumber(input.value)) ? min : parseFormattedNumber(input.value);
 
-            slider.addEventListener('input', () => {
-                input.value = slider.value;
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-            input.addEventListener('input', () => {
-                const val = parseFormattedNumber(input.value);
-                if (!isNaN(val)) slider.value = val;
-            });
-            const removeSlider = () => {
-                setTimeout(() => {
-                    if (document.activeElement !== slider && document.activeElement !== input) {
-                        slider.remove();
-                        input.removeEventListener('blur', removeSlider);
-                        slider.removeEventListener('blur', removeSlider);
-                    }
-                }, 200);
-            };
-            input.addEventListener('blur', removeSlider);
-            slider.addEventListener('blur', removeSlider);
-            input.parentElement.appendChild(slider);
-            slider.focus();
+            if (isNew) {
+                slider.addEventListener('input', () => {
+                    input.value = slider.value;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+                input.addEventListener('input', () => {
+                    const val = parseFormattedNumber(input.value);
+                    if (!isNaN(val)) slider.value = val;
+                });
+                input.parentElement.appendChild(slider);
+            }
         }
 
-        document.getElementById('inflation').addEventListener('focus', (e) => manageSlider(e.target));
-        document.getElementById('withdrawal-rate').addEventListener('focus', (e) => manageSlider(e.target));
-        document.getElementById('early-retirement-age').addEventListener('focus', (e) => manageSlider(e.target));
+        manageSlider(document.getElementById('current-age'));
+        manageSlider(document.getElementById('pension-age'));
+        manageSlider(document.getElementById('inflation'));
+        manageSlider(document.getElementById('withdrawal-rate'));
+        manageSlider(document.getElementById('early-retirement-age'));
 
     const supportedLangs = [
         { code: 'en', name: 'English' },
