@@ -1,3 +1,5 @@
+![screenshot](./screenshots/screenshot1.png)
+
 ## Project Overview
 
 SquirrelPlan is a client-side, single-page web application for personal financial planning and wealth simulation. It allows users to model their financial future by inputting assets, liabilities, income, and expenses. The tool generates projections of wealth evolution over time, helping users with retirement planning and financial goal setting.
