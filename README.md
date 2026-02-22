@@ -16,7 +16,7 @@ Key features include:
 ## Building and Running
 
 This is a static web project with no build process. To run the application, simply open the `index.html` file in a modern web browser.
-The main branch is live at [squirrelplan.app](https://squirrelplan.app)
+The main branch is live at [squirrelplan.app](https://squirrel-plan-git-jay-wip-jayshomebrews-projects.vercel.app/)
 There are no dependencies to install. All required libraries (Bootstrap, Chart.js, Sortable.js) are included in the `assets/` directory.
 
 ## Key Files and Directory Structure
