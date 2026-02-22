@@ -1,15 +1,35 @@
+/*
+ * SquirrelPlan Main Application
+ * 
+ * NOTE: Data management functions have been moved to src/data.js
+ * NOTE: Utility functions have been moved to src/utils.js
+ * NOTE: Validation functions have been moved to src/validation.js
+ */
+
 window.SquirrelPlanApp = {};
 
 (function(app) {
-    const APP_DATA_KEY = 'squirrelPlanData';
+    // Constants - Data management moved to src/data.js
+    // const APP_DATA_KEY = 'squirrelPlanData'; // Now in src/data.js
+
+    // Data functions now use window.SquirrelPlanData
+    // getBlankPlanData, getInitialAppData, getAppData, saveAppData, getActivePlan
+
+    // Formatting functions now use window.SquirrelPlanUtils
+    // formattingRules, parseFormattedNumber, formatNumberForDisplay, applyNumberFormatting
+
+    // Validation functions now use window.SquirrelPlanValidation
+    // validateInputs, clearValidation
 
     function getBlankPlanData() {
         return {
             currentAge: '30',
             inflation: '0.025',
-            pensionAge: '65',
+            pensionAge: '67',
             earlyRetirementAge: '',
             estimatedPension: '1500',
+            pensionFrequency: 'monthly',
+            pensionType: 'social-security',
             withdrawalRate: '',
             incomes: [],
             expenses: [],
@@ -367,6 +387,39 @@ window.SquirrelPlanApp = {};
             });
 
             applyNumberFormatting(row);
+
+            if (type === 'asset') {
+                const valueInput = row.querySelector('.category-value');
+                if (valueInput) manageSlider(valueInput);
+                const returnInput = row.querySelector('.category-return');
+                if (returnInput) manageSlider(returnInput);
+                const taxInput = row.querySelector('.category-tax');
+                if (taxInput) manageSlider(taxInput);
+                const startYearInput = row.querySelector('.category-start-year');
+                if (startYearInput) manageSlider(startYearInput);
+                const endYearInput = row.querySelector('.category-end-year');
+                if (endYearInput) manageSlider(endYearInput);
+            }
+            
+            if (type === 'liability') {
+                const valueInput = row.querySelector('.category-value');
+                if (valueInput) manageSlider(valueInput);
+                const interestRateInput = row.querySelector('.category-interest-rate');
+                if (interestRateInput) manageSlider(interestRateInput);
+                const startYearInput = row.querySelector('.category-start-year');
+                if (startYearInput) manageSlider(startYearInput);
+                const endYearInput = row.querySelector('.category-end-year');
+                if (endYearInput) manageSlider(endYearInput);
+            }
+            
+            if (type === 'expense') {
+                const valueInput = row.querySelector('.category-value');
+                if (valueInput) manageSlider(valueInput);
+                const startYearInput = row.querySelector('.category-start-year');
+                if (startYearInput) manageSlider(startYearInput);
+                const endYearInput = row.querySelector('.category-end-year');
+                if (endYearInput) manageSlider(endYearInput);
+            }
         }
 
         function getAssetFields(category) {
@@ -509,8 +562,44 @@ window.SquirrelPlanApp = {};
 
             const savingsTotal = incomeTotal - expenseTotal;
             document.querySelector('#section-allocation h3').innerHTML = `${getTranslation('savingsAllocationAccordionButton')} - Total ${currentYear}: ${formatCurrency(savingsTotal)}`;
+            
+            // Populate savings breakdown
+            const breakdownContent = document.getElementById('savings-breakdown-content');
+            if (breakdownContent) {
+                const activeIncomes = inputs.incomes.filter(i => (i.startYear || currentYear) <= currentYear && (!i.endYear || i.endYear >= currentYear));
+                const activeExpenses = inputs.expenses.filter(e => (e.startYear || currentYear) <= currentYear && (!e.endYear || e.endYear >= currentYear));
+                
+                let breakdownHtml = '<div class="row"><div class="col-md-6"><h6>' + (getTranslation('incomesLabel') || 'Incomes') + '</h6><ul class="list-unstyled">';
+                if (activeIncomes.length === 0) {
+                    breakdownHtml += '<li class="text-muted">No active incomes</li>';
+                } else {
+                    activeIncomes.forEach(i => {
+                        const annualValue = i.frequency === 'monthly' ? i.value * 12 : i.value;
+                        breakdownHtml += '<li>' + i.name + ': ' + formatCurrency(annualValue) + ' <small class="text-muted">(' + (i.frequency === 'monthly' ? 'monthly x 12' : 'annual') + ')</small></li>';
+                    });
+                }
+                breakdownHtml += '<li class="fw-bold border-top pt-2">' + (getTranslation('totalLabel') || 'Total') + ': ' + formatCurrency(incomeTotal) + '</li></ul></div>';
+                
+                breakdownHtml += '<div class="col-md-6"><h6>' + (getTranslation('expensesLabel') || 'Expenses') + '</h6><ul class="list-unstyled">';
+                if (activeExpenses.length === 0) {
+                    breakdownHtml += '<li class="text-muted">No active expenses</li>';
+                } else {
+                    activeExpenses.forEach(e => {
+                        const annualValue = e.frequency === 'monthly' ? e.value * 12 : e.value;
+                        breakdownHtml += '<li>' + e.name + ': ' + formatCurrency(annualValue) + ' <small class="text-muted">(' + (e.frequency === 'monthly' ? 'monthly x 12' : 'annual') + ')</small></li>';
+                    });
+                }
+                breakdownHtml += '<li class="fw-bold border-top pt-2">' + (getTranslation('totalLabel') || 'Total') + ': ' + formatCurrency(expenseTotal) + '</li></ul></div></div>';
+                
+                // JAY fixed for background colors to use theme
+                // breakdownHtml += '<div class="mt-3 p-2 bg-light rounded"><strong>' + (getTranslation('savingsTotalLabel') || 'Savings') + ': ' + formatCurrency(savingsTotal) + ' = ' + formatCurrency(incomeTotal) + ' - ' + formatCurrency(expenseTotal) + '</strong></div>';
+                breakdownHtml += '<div class="mt-3 p-2 bg-body-secondary rounded"><strong>' + (getTranslation('savingsTotalLabel') || 'Savings') + ': ' + formatCurrency(savingsTotal) + ' = ' + formatCurrency(incomeTotal) + ' - ' + formatCurrency(expenseTotal) + '</strong></div>';
+
+                breakdownContent.innerHTML = breakdownHtml;
+            }
         }
 
+        // ==================== INPUT HANDLING ====================
         function getUserInputs() {
             const getCategoryData = (container, type) => {
                 const items = [];
@@ -551,12 +640,21 @@ window.SquirrelPlanApp = {};
                 });
             });
 
+            const pensionFrequency = document.getElementById('pension-frequency').value;
+            const pensionType = document.getElementById('pension-type').value;
+            let estimatedPension = parseFormattedNumber(document.getElementById('estimated-pension').value) || 0;
+            if (pensionFrequency === 'annual') {
+                estimatedPension /= 12;
+            }
+
             return {
                 currentAge: parseInt(parseFormattedNumber(document.getElementById('current-age').value)) || 0,
                 inflation: parseFormattedNumber(document.getElementById('inflation').value) / 100 || 0,
                 pensionAge: parseInt(parseFormattedNumber(document.getElementById('pension-age').value)) || 0,
                 earlyRetirementAge: parseInt(parseFormattedNumber(document.getElementById('early-retirement-age').value)) || 0,
-                estimatedPension: parseFormattedNumber(document.getElementById('estimated-pension').value) || 0,
+                estimatedPension: estimatedPension,
+                pensionFrequency: pensionFrequency,
+                pensionType: pensionType,
                 withdrawalRate: parseFormattedNumber(document.getElementById('withdrawal-rate').value) / 100 || 0,
                 incomes: getCategoryData(incomeCategoriesContainer, 'income'),
                 expenses: getCategoryData(expenseCategoriesContainer, 'expense'),
@@ -566,6 +664,7 @@ window.SquirrelPlanApp = {};
             };
         }
 
+        // ==================== SIMULATION ====================
         function runAndRender(isManualRun = false) {
             if (isManualRun) {
                 assetColors = {};
@@ -647,7 +746,9 @@ window.SquirrelPlanApp = {};
                 wealthChart = null;
             }
 
-            const labels = results.map(r => r.year);
+            // Change the label to include the age
+            // const labels = results.map(r => r.year);
+            const labels = results.map(r => r.year + ' [' + r.age + ']');
             const assetKeys = Object.keys(results[0].assets);
             const netWorthData = results.map(r => r.net_worth);
 
@@ -809,12 +910,37 @@ window.SquirrelPlanApp = {};
             reader.readAsText(file);
         }
 
+        // ==================== UI POPULATION ====================
         function setUserValues(data) {
             document.getElementById('current-age').value = String(data.currentAge);
             document.getElementById('inflation').value = String(data.inflation * 100);
             document.getElementById('pension-age').value = String(data.pensionAge);
             document.getElementById('early-retirement-age').value = String(data.earlyRetirementAge || '');
-            document.getElementById('estimated-pension').value = String(data.estimatedPension);
+
+            const pensionFrequency = data.pensionFrequency || 'monthly';
+            document.getElementById('pension-frequency').value = pensionFrequency;
+            
+            const pensionType = data.pensionType || 'social-security';
+            document.getElementById('pension-type').value = pensionType;
+            const pensionSwitch = document.getElementById('pension-type-switch');
+            const pensionTypeLabel = document.getElementById('pension-type-label');
+            if (pensionType === 'pension') {
+                pensionSwitch.checked = true;
+                pensionTypeLabel.textContent = 'Pension';
+            } else {
+                pensionSwitch.checked = false;
+                pensionTypeLabel.textContent = 'Social Security';
+            }
+            // Initialize pension-age slider with correct range based on pension type
+            manageSlider(document.getElementById('pension-age'));
+            
+            let estimatedPension = data.estimatedPension;
+            if (pensionFrequency === 'annual') {
+                estimatedPension *= 12;
+            }
+            document.getElementById('estimated-pension').value = String(estimatedPension);
+            updatePensionAltField();
+
             document.getElementById('withdrawal-rate').value = String(data.withdrawalRate * 100);
 
             incomeCategoriesContainer.innerHTML = '';
@@ -849,8 +975,14 @@ window.SquirrelPlanApp = {};
             applyNumberFormatting(document.body);
             initializeSortable();
             initializeTooltips();
+        manageSlider(document.getElementById('current-age'));
+        manageSlider(document.getElementById('pension-age'));
+        manageSlider(document.getElementById('inflation'));
+        manageSlider(document.getElementById('withdrawal-rate'));
+        manageSlider(document.getElementById('early-retirement-age'));
         }
 
+        // ==================== RESULTS RENDERING ====================
         function renderTable(results) {
             const tableHead = document.getElementById('results-table-head');
             const tableBody = document.getElementById('results-table-body');
@@ -1062,12 +1194,21 @@ window.SquirrelPlanApp = {};
             const presetContainer = document.getElementById('plans-modal').querySelector('#preset-plans-container');
             presetContainer.innerHTML = '';
             const presets = ['recent-graduate', 'early-career', 'mid-career', 'late-career'];
+            // presets.forEach(p => {
+            //     const button = document.createElement('button');
+            //     button.type = 'button';
+            //     button.className = 'list-group-item list-group-item-action';
+            //     const translationKey = p.split('-').map((w, i) => i > 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w).join('');
+            //     button.textContent = getTranslation(translationKey) || p;
+            // JAY added to include age
             presets.forEach(p => {
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'list-group-item list-group-item-action';
                 const translationKey = p.split('-').map((w, i) => i > 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w).join('');
-                button.textContent = getTranslation(translationKey) || p;
+                const presetData = getSampleData(p);
+                const age = presetData.currentAge;
+                button.textContent = `${getTranslation(translationKey) || p} (Age ${age})`;
                 button.dataset.stage = p;
                 button.addEventListener('click', () => {
                     const presetName = getTranslation(translationKey) || p;
@@ -1244,6 +1385,7 @@ window.SquirrelPlanApp = {};
         initializeSortable();
         applyNumberFormatting(document.body);
 
+        // ==================== EVENT LISTENERS ====================
         document.getElementById('add-asset-category-btn').addEventListener('click', () => addCategory(assetCategoriesContainer, 'asset'));
         document.getElementById('add-liability-category-btn').addEventListener('click', () => addCategory(liabilityCategoriesContainer, 'liability'));
         document.getElementById('add-income-category-btn').addEventListener('click', () => addCategory(incomeCategoriesContainer, 'income'));
@@ -1329,21 +1471,122 @@ window.SquirrelPlanApp = {};
 
         document.getElementById('financial-data-content').addEventListener('change', autoRunSimulationIfEnabled);
 
+        let previousPensionFrequency;
+        const pensionFrequencySelector = document.getElementById('pension-frequency');
+
+        pensionFrequencySelector.addEventListener('focus', (e) => {
+            previousPensionFrequency = e.target.value;
+        });
+
+        pensionFrequencySelector.addEventListener('change', (e) => {
+            const pensionInput = document.getElementById('estimated-pension');
+            let currentValue = parseFormattedNumber(pensionInput.value) || 0;
+            const newFrequency = e.target.value;
+
+            if (newFrequency === 'annual' && previousPensionFrequency === 'monthly') {
+                pensionInput.value = formatNumberForDisplay(currentValue * 12, formattingRules['#estimated-pension']);
+            } else if (newFrequency === 'monthly' && previousPensionFrequency === 'annual') {
+                pensionInput.value = formatNumberForDisplay(currentValue / 12, formattingRules['#estimated-pension']);
+            }
+            previousPensionFrequency = newFrequency;
+            updatePensionAltField();
+            autoRunSimulationIfEnabled();
+        });
+
+        function updatePensionAltField() {
+            const pensionInput = document.getElementById('estimated-pension');
+            const frequency = document.getElementById('pension-frequency').value;
+            const altInput = document.getElementById('estimated-pension-alt');
+            let currentValue = parseFormattedNumber(pensionInput.value) || 0;
+            
+            if (frequency === 'monthly') {
+                altInput.value = formatNumberForDisplay(currentValue * 12, formattingRules['#estimated-pension']);
+            } else {
+                altInput.value = formatNumberForDisplay(currentValue / 12, formattingRules['#estimated-pension']);
+            }
+        }
+
+        document.getElementById('estimated-pension').addEventListener('input', updatePensionAltField);
+
+        // Pension type switch handler
+        document.getElementById('pension-type-switch').addEventListener('change', function() {
+            const pensionSelect = document.getElementById('pension-type');
+            const label = document.getElementById('pension-type-label');
+            if (this.checked) {
+                pensionSelect.value = 'pension';
+                label.textContent = 'Pension';
+            } else {
+                pensionSelect.value = 'social-security';
+                label.textContent = 'Social Security';
+            }
+            // Update pension-age slider range based on pension type
+            const pensionAgeInput = document.getElementById('pension-age');
+            manageSlider(pensionAgeInput);
+            // Clamp value if needed
+            const slider = pensionAgeInput.parentElement.querySelector('.permanent-slider');
+            if (slider) {
+                let currentVal = parseFormattedNumber(pensionAgeInput.value) || parseInt(slider.min);
+                if (currentVal < parseInt(slider.min)) {
+                    pensionAgeInput.value = slider.min;
+                } else if (currentVal > parseInt(slider.max)) {
+                    pensionAgeInput.value = slider.max;
+                }
+            }
+        });
+
+        // ==================== SLIDER MANAGEMENT ====================
         function manageSlider(input) {
-            if (input.parentElement.querySelector('.temp-slider')) return;
-            const slider = document.createElement('input');
-            slider.type = 'range';
-            slider.classList.add('form-range', 'mt-1', 'temp-slider');
+            let slider = input.parentElement.querySelector('.permanent-slider');
+            const isNew = !slider;
+            if (isNew) {
+                slider = document.createElement('input');
+                slider.type = 'range';
+                slider.classList.add('form-range', 'mt-1', 'permanent-slider');
+            }
+
             let min = 0, max = 100, step = 1;
 
             switch (input.id) {
+                case 'current-age': min = 18; max = 100; step = 1; break;
+                case 'pension-age':
+                    {
+                        const pensionType = document.getElementById('pension-type').value;
+                        if (pensionType === 'social-security') {
+                            min = 62;
+                            max = 70;
+                        } else {
+                            min = parseInt(document.getElementById('current-age').value) || 18;
+                            max = 80;
+                        }
+                    }
+                    break;
                 case 'inflation': max = 20; step = 0.1; break;
                 case 'withdrawal-rate': max = 15; step = 0.1; break;
                 case 'early-retirement-age':
                     min = parseInt(document.getElementById('current-age').value) || 18;
                     max = parseInt(document.getElementById('pension-age').value) || 80;
                     break;
-                default: return;
+                default:
+                    if (input.id.includes('-value')) { max = 10000000; step = 100; }
+                    else if (input.id.includes('-return')) { max = 30; step = 0.1; }
+                    else if (input.id.includes('-tax')) { max = 50; step = 0.1; }
+                    else if (input.id.includes('-interest-rate')) { max = 30; step = 0.1; }
+                    else if (input.id.includes('-start-year')) { min = 2000; max = 2100; step = 1; }
+                    else if (input.id.includes('-end-year')) { 
+                        min = 2000; max = 2100; step = 1;
+                        // Find the related start-year input in the same row
+                        const row = input.closest('.category-row');
+                        if (row) {
+                            const startYearInput = row.querySelector('.category-start-year');
+                            if (startYearInput && startYearInput.value) {
+                                const startYearVal = parseFormattedNumber(startYearInput.value);
+                                if (!isNaN(startYearVal)) {
+                                    min = startYearVal;
+                                }
+                            }
+                        }
+                    }
+                    else return;
             }
 
             slider.min = min;
@@ -1351,32 +1594,46 @@ window.SquirrelPlanApp = {};
             slider.step = step;
             slider.value = isNaN(parseFormattedNumber(input.value)) ? min : parseFormattedNumber(input.value);
 
-            slider.addEventListener('input', () => {
-                input.value = slider.value;
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-            input.addEventListener('input', () => {
-                const val = parseFormattedNumber(input.value);
-                if (!isNaN(val)) slider.value = val;
-            });
-            const removeSlider = () => {
-                setTimeout(() => {
-                    if (document.activeElement !== slider && document.activeElement !== input) {
-                        slider.remove();
-                        input.removeEventListener('blur', removeSlider);
-                        slider.removeEventListener('blur', removeSlider);
+            if (isNew) {
+                slider.addEventListener('input', () => {
+                    input.value = slider.value;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    
+                    // If this is a start-year, update the end-year slider in the same row
+                    if (input.classList.contains('category-start-year')) {
+                        const row = input.closest('.category-row');
+                        if (row) {
+                            const endYearInput = row.querySelector('.category-end-year');
+                            if (endYearInput) {
+                                manageSlider(endYearInput);
+                            }
+                        }
                     }
-                }, 200);
-            };
-            input.addEventListener('blur', removeSlider);
-            slider.addEventListener('blur', removeSlider);
-            input.parentElement.appendChild(slider);
-            slider.focus();
+                });
+                input.addEventListener('input', () => {
+                    const val = parseFormattedNumber(input.value);
+                    if (!isNaN(val)) slider.value = val;
+                    
+                    // If this is a start-year, update the end-year slider in the same row
+                    if (input.classList.contains('category-start-year')) {
+                        const row = input.closest('.category-row');
+                        if (row) {
+                            const endYearInput = row.querySelector('.category-end-year');
+                            if (endYearInput) {
+                                manageSlider(endYearInput);
+                            }
+                        }
+                    }
+                });
+                input.parentElement.appendChild(slider);
+            }
         }
 
-        document.getElementById('inflation').addEventListener('focus', (e) => manageSlider(e.target));
-        document.getElementById('withdrawal-rate').addEventListener('focus', (e) => manageSlider(e.target));
-        document.getElementById('early-retirement-age').addEventListener('focus', (e) => manageSlider(e.target));
+        manageSlider(document.getElementById('current-age'));
+        manageSlider(document.getElementById('pension-age'));
+        manageSlider(document.getElementById('inflation'));
+        manageSlider(document.getElementById('withdrawal-rate'));
+        manageSlider(document.getElementById('early-retirement-age'));
 
     const supportedLangs = [
         { code: 'en', name: 'English' },

@@ -278,3 +278,17 @@ th {
     align-items: center;
     gap: 0.5rem;
 }
+
+/* Pension Type Toggle Switch */
+#pension-type-switch {
+    width: 3rem;
+    height: 1.5rem;
+    margin-top: 0;
+    cursor: pointer;
+}
+
+#pension-type-label {
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}

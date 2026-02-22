@@ -1,8 +1,8 @@
 function getSampleData(stage) {
     const recentGraduate = {
         assets: [
-            { name: getTranslation('stocks'), value: '5000', return: '8', tax: '0', withdrawalOrder: 1 },
-            { name: getTranslation('savingsAccount'), value: '10000', return: '1', tax: '0', withdrawalOrder: 2 }
+            { name: getTranslation('stocks'), value: '5000', return: '4', tax: '0', withdrawalOrder: 1 },
+            { name: getTranslation('savingsAccount'), value: '10000', return: '0.5', tax: '0', withdrawalOrder: 2 }
         ],
         liabilities: [],
         incomes: [
@@ -17,15 +17,16 @@ function getSampleData(stage) {
         currentAge: '22',
         pensionAge: '65',
         estimatedPension: '1200',
+        pensionType: 'social-security',
         inflation: '0.025',
         withdrawalRate: '0'
     };
 
     const earlyCareer = {
         assets: [
-            { name: getTranslation('stocks'), value: '25000', return: '8', tax: '0', withdrawalOrder: 1 },
-			{ name: getTranslation('bonds'), value: '5000', return: '4', tax: '0', withdrawalOrder: 2 },
-            { name: getTranslation('savingsAccount'), value: '25000', return: '1', tax: '0', withdrawalOrder: 3 }
+            { name: getTranslation('stocks'), value: '25000', return: '4', tax: '0', withdrawalOrder: 1 },
+			{ name: getTranslation('bonds'), value: '5000', return: '2', tax: '0', withdrawalOrder: 2 },
+            { name: getTranslation('savingsAccount'), value: '25000', return: '0.5', tax: '0', withdrawalOrder: 3 }
         ],
         liabilities: [],
         incomes: [
@@ -41,16 +42,17 @@ function getSampleData(stage) {
         currentAge: '30',
         pensionAge: '65',
         estimatedPension: '1500',
+        pensionType: 'social-security',
         inflation: '0.025',
         withdrawalRate: '0'
     };
 
     const midCareer = {
         assets: [
-            { name: getTranslation('ownHome'), value: '300000', return: '4', tax: '0', withdrawalOrder: 4 },
-            { name: getTranslation('stocks'), value: '100000', return: '8', tax: '0', withdrawalOrder: 1 },
-            { name: getTranslation('bonds'), value: '25000', return: '4', tax: '0', withdrawalOrder: 2 },
-            { name: getTranslation('savingsAccount'), value: '50000', return: '1', tax: '0', withdrawalOrder: 3 }
+            { name: getTranslation('ownHome'), value: '300000', return: '0', tax: '0', withdrawalOrder: 4 },
+            { name: getTranslation('stocks'), value: '100000', return: '4', tax: '0', withdrawalOrder: 1 },
+            { name: getTranslation('bonds'), value: '25000', return: '2', tax: '0', withdrawalOrder: 2 },
+            { name: getTranslation('savingsAccount'), value: '50000', return: '0.5', tax: '0', withdrawalOrder: 3 }
         ],
         liabilities: [
             { name: getTranslation('mortgage'), value: '200000', endYear: '2044', interestRate: '3.0' }
@@ -69,16 +71,17 @@ function getSampleData(stage) {
         currentAge: '45',
         pensionAge: '65',
         estimatedPension: '2000',
+        pensionType: 'social-security',
         inflation: '0.025',
         withdrawalRate: '0'
     };
 
     const lateCareer = {
         assets: [
-            { name: getTranslation('ownHome'), value: '400000', return: '3', tax: '0', withdrawalOrder: 4 },
-            { name: getTranslation('stocks'), value: '250000', return: '6', tax: '0', withdrawalOrder: 1 },
-            { name: getTranslation('bonds'), value: '100000', return: '3', tax: '0', withdrawalOrder: 2 },
-            { name: getTranslation('savingsAccount'), value: '100000', return: '1', tax: '0', withdrawalOrder: 3 }
+            { name: getTranslation('ownHome'), value: '400000', return: '0', tax: '0', withdrawalOrder: 4 },
+            { name: getTranslation('stocks'), value: '250000', return: '3', tax: '0', withdrawalOrder: 1 },
+            { name: getTranslation('bonds'), value: '100000', return: '1', tax: '0', withdrawalOrder: 2 },
+            { name: getTranslation('savingsAccount'), value: '100000', return: '0.5', tax: '0', withdrawalOrder: 3 }
         ],
         liabilities: [],
         incomes: [
@@ -93,6 +96,7 @@ function getSampleData(stage) {
         currentAge: '55',
         pensionAge: '65',
         estimatedPension: '2500',
+        pensionType: 'social-security',
         inflation: '0.025',
         withdrawalRate: '0'
     };
