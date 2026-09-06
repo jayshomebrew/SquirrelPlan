@@ -62,11 +62,11 @@
                     <nav id="financial-nav" class="nav flex-column">
                         <a class="nav-link active" href="#section-retirement" data-i18n-key="retirementPlanningAccordionButton">Household Profile</a>
                         <a class="nav-link" href="#section-income" data-i18n-key="incomeAccordionButton">Income</a>
-                        <a class="nav-link" href="#section-bank-accounts">Bank Accounts</a>
-                        <a class="nav-link" href="#section-retirement-accounts">Retirement Accounts</a>
-                        <a class="nav-link" href="#section-property">Property</a>
+                        <a class="nav-link" href="#section-assets" data-i18n-key="assetsAccordionButton">Assets</a>
+                        <a class="nav-link" href="#section-liabilities" data-i18n-key="liabilitiesAccordionButton">Liabilities</a>
                         <a class="nav-link" href="#section-expenses" data-i18n-key="expensesAccordionButton">Expenses</a>
-                        <a class="nav-link" href="#section-pension">Retirement Income</a>
+                        <a class="nav-link" href="#section-allocation" data-i18n-key="savingsAllocationAccordionButton">Savings Allocation</a>
+                        <a class="nav-link" href="#section-pension" data-i18n-key="pensionAccordionButton">Pension</a>
                         <a class="nav-link" href="#section-advanced" data-i18n-key="advancedAccordionButton">Advanced</a>
                         <a class="nav-link" href="#section-summary" data-i18n-key="summaryAccordionButton">Summary</a>
                     </nav>
@@ -78,39 +78,17 @@
                         <!-- Retirement Section -->
                         <div id="section-retirement" class="content-section">
                             <h3 data-i18n-key="retirementPlanningAccordionButton">Household Profile</h3>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <strong>Household Members</strong>
-                                        <div class="text-muted small">Add each person in the household. The first person is used as the primary profile.</div>
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-secondary" id="add-household-member-btn">Add Person</button>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-bordered align-middle mb-0" id="household-members-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Current Age</th>
-                                                <th>Legal Retirement Age</th>
-                                                <th class="text-end">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
                             <div class="row">
                                 <div class="col-md-4">
-                                    <label for="person-name" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="personNameTooltip">Primary Person Name <i class="bi bi-info-circle"></i></label>
+                                    <label for="person-name" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="personNameTooltip">Person Name <i class="bi bi-info-circle"></i></label>
                                     <input type="text" class="form-control" id="person-name" aria-label="Person name">
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="current-age" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="currentAgeTooltip" data-i18n-key="currentAgeLabel">Primary Current Age <i class="bi bi-info-circle"></i></label>
+                                    <label for="current-age" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="currentAgeTooltip" data-i18n-key="currentAgeLabel">Current Age <i class="bi bi-info-circle"></i></label>
                                     <input type="text" class="form-control" id="current-age" aria-label="Current age">
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="pension-age" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="legalRetirementAgeTooltip" data-i18n-key="legalRetirementAgeLabel">Primary Legal Retirement Age <i class="bi bi-info-circle"></i></label>
+                                    <label for="pension-age" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="legalRetirementAgeTooltip" data-i18n-key="legalRetirementAgeLabel">Legal Retirement Age <i class="bi bi-info-circle"></i></label>
                                     <input type="text" class="form-control" id="pension-age" aria-label="Retirement age">
                                 </div>
                             </div>
@@ -124,25 +102,10 @@
                         </div>
 
                         <!-- Assets Section -->
-                        <div id="section-bank-accounts" class="content-section" style="display: none;">
-                            <h3>Bank Accounts</h3>
-                            <p class="text-muted">Checking and savings accounts. Add annual contributions in dollars.</p>
+                        <div id="section-assets" class="content-section" style="display: none;">
+                            <h3 data-i18n-key="assetsAccordionButton">Assets</h3>
                             <div id="asset-categories-container"></div>
-                            <button class="btn btn-secondary mt-3" id="add-asset-category-btn">Add Bank Account</button>
-                        </div>
-
-                        <div id="section-retirement-accounts" class="content-section" style="display: none;">
-                            <h3>Retirement Accounts</h3>
-                            <p class="text-muted">401(k), 403(b), IRA, and other retirement investments.</p>
-                            <div id="retirement-account-categories-container"></div>
-                            <button class="btn btn-secondary mt-3" id="add-retirement-account-btn">Add Retirement Account</button>
-                        </div>
-
-                        <div id="section-property" class="content-section" style="display: none;">
-                            <h3>Property</h3>
-                            <p class="text-muted">Home or land. Mortgage, property tax, and HOA are included in your projected monthly bill.</p>
-                            <div id="property-categories-container"></div>
-                            <button class="btn btn-secondary mt-3" id="add-property-btn">Add Property</button>
+                            <button class="btn btn-secondary mt-3" id="add-asset-category-btn" data-i18n-key="newAssetButton">New Asset Class</button>
                         </div>
 
                         <!-- Liabilities Section -->
@@ -162,14 +125,6 @@
                         <!-- Expenses Section -->
                         <div id="section-expenses" class="content-section" style="display: none;">
                             <h3 data-i18n-key="expensesAccordionButton">Expenses</h3>
-                            <div class="mb-3">
-                                <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#expense-calculation-breakdown" role="button" aria-expanded="true">
-                                    <span>Show/Hide Calculation Breakdown</span>
-                                </a>
-                                <div class="collapse show mt-2" id="expense-calculation-breakdown">
-                                    <div class="card card-body small" id="expense-calculation-content"></div>
-                                </div>
-                            </div>
                             <div id="expense-categories-container"></div>
                             <button class="btn btn-secondary mt-3" id="add-expense-category-btn" data-i18n-key="newExpenseButton">New Expense Category</button>
                         </div>
@@ -177,10 +132,6 @@
                         <!-- Savings Allocation Section -->
                         <div id="section-allocation" class="content-section" style="display: none;">
                             <h3 data-i18n-key="savingsAllocationAccordionButton">Savings Allocation</h3>
-                            <div class="allocation-guide mb-3" role="status">
-                                <strong id="allocation-guide-title">Choose how much of this year's surplus to invest.</strong>
-                                <span id="allocation-guide-detail"></span>
-                            </div>
                             <div class="mb-3">
                                 <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#savings-breakdown" role="button" aria-expanded="true">
                                     <span data-i18n-key="showBreakdownLabel">Show/Hide Calculation Breakdown</span>
@@ -336,13 +287,13 @@
     <script src="assets/chart.js"></script>
     <script src="assets/sortable.min.js"></script>
     <script src="sample-data.js"></script>
-    <script src="simulation.js?v=20260731-1522"></script>
+    <script src="simulation.js?v=20260727-0846"></script>
     <script src="src/data.js"></script>
     <script src="src/utils.js"></script>
     <script src="src/validation.js"></script>
     <script src="src/ui.js"></script>
     <script src="src/events.js"></script>
-    <script src="script.js?v=20260731-1522"></script>
+    <script src="script.js"></script>
 	<script src="sankey.js"></script>
 	<script src="translator.js"></script>
 

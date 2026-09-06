@@ -205,17 +205,6 @@ function runSimulation(inputs, isMonteCarlo = false) {
 
         let uncoveredDeficit = 0;
         let savingsAllocated = 0;
-        const applyAccountContributions = availableSavings => {
-            const contributions = Object.keys(assets).map(name => ({ name, amount: assetMap.get(name)?.annualContribution || 0 }))
-                .filter(item => item.amount > 0);
-            const plannedTotal = contributions.reduce((sum, item) => sum + item.amount, 0);
-            const scale = plannedTotal > availableSavings && plannedTotal > 0 ? availableSavings / plannedTotal : 1;
-            contributions.forEach(item => {
-                const contribution = item.amount * scale;
-                assets[item.name] += contribution;
-                savingsAllocated += contribution;
-            });
-        };
 
         if (currentAge < retirementAge) {
             let savings = savingsCapacity;
@@ -267,7 +256,6 @@ function runSimulation(inputs, isMonteCarlo = false) {
                         }
                     });
                 }
-                if (!currentAllocation) applyAccountContributions(savingsCapacity);
             }
         } else {
             if (initialPensionWithdrawal === 0) {
@@ -311,7 +299,6 @@ function runSimulation(inputs, isMonteCarlo = false) {
                         }
                     });
                 }
-                if (!currentAllocation) applyAccountContributions(savingsCapacity);
             }
 
             const activeAssetNames = Object.keys(assets);

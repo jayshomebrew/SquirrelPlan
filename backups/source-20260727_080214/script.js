@@ -29,7 +29,6 @@ window.SquirrelPlanApp = {};
             pensionAge: '67',
             earlyRetirementAge: '',
             withdrawalRate: '',
-            householdMembers: [],
             pensions: [],
             incomes: [],
             expenses: [],
@@ -194,7 +193,6 @@ window.SquirrelPlanApp = {};
         ];
 
         function autoRunSimulationIfEnabled() {
-            updateAllocationAmountSuggestions();
             runAndRender(false);
             updateSectionTitles();
         }
@@ -275,8 +273,6 @@ window.SquirrelPlanApp = {};
         const incomeCategoriesContainer = document.getElementById('income-categories-container');
         const expenseCategoriesContainer = document.getElementById('expense-categories-container');
         const assetCategoriesContainer = document.getElementById('asset-categories-container');
-        const retirementAccountCategoriesContainer = document.getElementById('retirement-account-categories-container');
-        const propertyCategoriesContainer = document.getElementById('property-categories-container');
         const liabilityCategoriesContainer = document.getElementById('liability-categories-container');
         const pensionCategoriesContainer = document.getElementById('pension-categories-container');
         const allocationPeriodsContainer = document.getElementById('allocation-periods-container');
@@ -294,7 +290,6 @@ window.SquirrelPlanApp = {};
             '.category-end-year': { decimals: 0, thousands: false },
             '.category-withdrawal-order': { decimals: 0, thousands: false },
             '.allocation-start-year': { decimals: 0, thousands: false },
-            '.allocation-amount': { decimals: 0, thousands: true },
             '.allocation-asset': { decimals: 0, thousands: false },
         };
 
@@ -370,9 +365,7 @@ window.SquirrelPlanApp = {};
             row.dataset.type = type;
             let fields = '';
             switch (type) {
-                case 'asset':
-                case 'account': fields = getAssetFields(category); break;
-                case 'property': fields = getPropertyFields(category); break;
+                case 'asset': fields = getAssetFields(category); break;
                 case 'liability': fields = getLiabilityFields(category); break;
                 case 'income': fields = getIncomeFields(category); break;
                 case 'expense': fields = getExpenseFields(category); break;
@@ -385,8 +378,7 @@ window.SquirrelPlanApp = {};
                 element.setAttribute('title', getTranslation(element.getAttribute('data-i18n-title-key')));
             });
 
-            const tooltipTarget = row.querySelector('[data-bs-toggle="tooltip"]');
-            if (tooltipTarget) new bootstrap.Tooltip(tooltipTarget);
+            new bootstrap.Tooltip(row.querySelector('[data-bs-toggle="tooltip"]'));
 
             row.querySelector('.delete-category-btn').addEventListener('click', () => {
                 if (row.dataset.type === 'asset') {
@@ -405,7 +397,7 @@ window.SquirrelPlanApp = {};
                     }
                 }
                 row.remove();
-                if (type === 'asset' || type === 'account') {
+                if (type === 'asset') {
                     syncAllocationPeriodsAssets();
                 }
                 autoRunSimulationIfEnabled();
@@ -413,7 +405,7 @@ window.SquirrelPlanApp = {};
 
             applyNumberFormatting(row);
 
-            if (type === 'asset' || type === 'account') {
+            if (type === 'asset') {
                 const nameInput = row.querySelector('.category-name');
                 if (nameInput) {
                     nameInput.addEventListener('input', () => {
@@ -432,11 +424,6 @@ window.SquirrelPlanApp = {};
                 if (endYearInput) manageSlider(endYearInput);
 
                 syncAllocationPeriodsAssets();
-            }
-
-            if (type === 'property') {
-                row.querySelectorAll('input').forEach(input => input.addEventListener('input', () => updatePropertyBill(row)));
-                updatePropertyBill(row);
             }
 
             if (type === 'liability') {
@@ -488,8 +475,6 @@ window.SquirrelPlanApp = {};
             return `
                 <div class="col-6 col-md-4 col-lg-3 col-xxl-2"><label for="${idPrefix}-name" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="assetNameTooltip">${getTranslation('nameLabel')} <i class="bi bi-info-circle"></i></label><input type="text" id="${idPrefix}-name" class="form-control category-name" value="${category.name || ''}"></div>
                 <div class="col-6 col-md-4 col-lg-3 col-xxl-2"><label for="${idPrefix}-value" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="assetValueTooltip">${getTranslation('valueLabel')} <i class="bi bi-info-circle"></i></label><input type="text" id="${idPrefix}-value" class="form-control category-value" value="${category.value || ''}"></div>
-                <div class="col-6 col-md-4 col-lg-3 col-xxl-2"><label for="${idPrefix}-owner" class="form-label">Owner</label><select id="${idPrefix}-owner" class="form-select category-owner"><option>Person 1</option><option>Person 2</option><option>Shared</option></select></div>
-                <div class="col-6 col-md-4 col-lg-3 col-xxl-2"><label for="${idPrefix}-contribution" class="form-label">Annual contribution</label><input type="text" id="${idPrefix}-contribution" class="form-control category-contribution" value="${category.annualContribution || ''}"></div>
                 <div class="col-6 col-md-4 col-lg-3 col-xxl-2"><label for="${idPrefix}-return" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="assetReturnTooltip">${getTranslation('returnLabel')} <i class="bi bi-info-circle"></i></label><input type="text" id="${idPrefix}-return" class="form-control category-return" value="${category.return || ''}"></div>
                 <div class="col-6 col-md-4 col-lg-3 col-xxl-2"><label for="${idPrefix}-tax" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="assetTaxTooltip">${getTranslation('taxLabel')} <i class="bi bi-info-circle"></i></label><input type="text" id="${idPrefix}-tax" class="form-control category-tax" value="${category.tax || ''}"></div>
                 <div class="col-6 col-md-4 col-lg-3 col-xxl-1"><label for="${idPrefix}-start-year" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="assetStartYearTooltip">${getTranslation('startLabel')} <i class="bi bi-info-circle"></i></label><input type="text" id="${idPrefix}-start-year" class="form-control category-start-year" value="${category.startYear || new Date().getFullYear()}"></div>
@@ -497,38 +482,6 @@ window.SquirrelPlanApp = {};
                 <div class="col-6 col-md-4 col-lg-3 col-xxl-1"><label for="${idPrefix}-withdrawal-order" class="form-label" data-bs-toggle="tooltip" data-i18n-title-key="assetWithdrawalOrderTooltip">${getTranslation('withdrawalOrderLabel')} <i class="bi bi-info-circle"></i></label><input type="text" id="${idPrefix}-withdrawal-order" class="form-control category-withdrawal-order" value="${category.withdrawalOrder || ''}"></div>
                 <div class="col-6 col-md-4 col-lg-3 col-xxl-1 d-flex align-items-end"><i class="bi bi-grip-vertical drag-handle me-2" style="cursor: move; font-size: 1.2rem;"></i><button class="btn btn-danger btn-sm delete-category-btn" aria-label="${getTranslation('deleteAssetCategoryLabel')}"><i class="bi bi-trash"></i></button></div>
             `;
-        }
-
-        function getPropertyFields(category) {
-            const id = getUniqueId('property');
-            return `<div class="col-md-2"><label class="form-label">Property name</label><input class="form-control property-name" value="${category.name || ''}"></div>
-                <div class="col-md-2"><label class="form-label">Owner</label><select class="form-select property-owner"><option>Person 1</option><option>Person 2</option><option>Shared</option></select></div>
-                <div class="col-md-2"><label class="form-label">Property value</label><input class="form-control property-value" value="${category.value || ''}"></div>
-                <div class="col-md-2"><label class="form-label">Remaining loan balance</label><input class="form-control property-loan" value="${category.loanBalance || ''}"></div>
-                <div class="col-md-1"><label class="form-label">Rate %</label><input class="form-control property-rate" value="${category.interestRate || ''}"></div>
-                <div class="col-md-1"><label class="form-label">Years left</label><input class="form-control property-term" value="${category.termYears || ''}"></div>
-                <div class="col-md-1"><label class="form-label">Property tax</label><input class="form-control property-tax" value="${category.propertyTax || ''}"></div>
-                <div class="col-md-2"><label class="form-label">Tax type</label><select class="form-select property-tax-type"><option value="dollar">Annual $</option><option value="percent">% of value</option></select></div>
-                <div class="col-md-1"><label class="form-label">Monthly HOA</label><input class="form-control property-hoa" value="${category.hoa || ''}"></div>
-                <div class="col-md-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input property-exclude-from-net-worth" type="checkbox" id="${id}-exclude" ${category.excludeFromNetWorth !== false ? 'checked' : ''}>
-                        <label class="form-check-label" for="${id}-exclude">Exclude from net worth</label>
-                    </div>
-                </div>
-                <div class="col-md-2"><label class="form-label">Estimated monthly bill</label><output class="form-control property-monthly-bill">$0</output></div>
-                <div class="col-md-2"><label class="form-label">Estimated yearly bill</label><output class="form-control property-yearly-bill">$0</output></div>
-                <div class="col-md-1 d-flex align-items-end"><button class="btn btn-danger btn-sm delete-category-btn" aria-label="Delete property"><i class="bi bi-trash"></i></button></div>`;
-        }
-
-        function updatePropertyBill(row) {
-            const number = selector => parseFormattedNumber(row.querySelector(selector).value) || 0;
-            const balance = number('.property-loan'); const rate = number('.property-rate') / 100; const months = number('.property-term') * 12;
-            const principalInterest = months > 0 ? (rate === 0 ? balance / months : balance * (rate / 12) * Math.pow(1 + rate / 12, months) / (Math.pow(1 + rate / 12, months) - 1)) : 0;
-            const tax = row.querySelector('.property-tax-type').value === 'percent' ? number('.property-value') * number('.property-tax') / 100 / 12 : number('.property-tax') / 12;
-            const monthlyTotal = principalInterest + tax + number('.property-hoa');
-            row.querySelector('.property-monthly-bill').textContent = `$${monthlyTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-            row.querySelector('.property-yearly-bill').textContent = `$${(monthlyTotal * 12).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
         }
 
         function getLiabilityFields(category) {
@@ -592,9 +545,6 @@ window.SquirrelPlanApp = {};
 
         function addAllocationPeriod(period = {}) {
             const periodId = getUniqueId('period');
-            const suggestedAmount = Math.max(getCurrentSavingsCapacity(), 0);
-            const allocationAmount = period.amount !== undefined ? period.amount : suggestedAmount;
-            const isManualAmount = period.amount !== undefined;
             const row = document.createElement('div');
             row.classList.add('row', 'mb-3', 'allocation-period');
             row.innerHTML = `
@@ -602,13 +552,8 @@ window.SquirrelPlanApp = {};
                     <label for="allocation-start-year-${periodId}" class="form-label">${getTranslation('startYearLabel')}</label>
                     <input type="text" id="allocation-start-year-${periodId}" class="form-control allocation-start-year" value="${period.startYear || new Date().getFullYear()}">
                 </div>
-                <div class="col-xxl-3">
-                    <label for="allocation-amount-${periodId}" class="form-label">Annual savings to invest</label>
-                    <input type="text" id="allocation-amount-${periodId}" class="form-control allocation-amount" value="${allocationAmount}" data-manual-amount="${isManualAmount}">
-                    <small class="text-muted">Starts with available savings capacity.</small>
-                </div>
-                <div class="col-xxl-4" id="allocation-assets-${periodId}"></div>
-                <div class="col-xxl-3 d-flex align-items-center">
+                <div class="col-xxl-6" id="allocation-assets-${periodId}"></div>
+                <div class="col-xxl-4 d-flex align-items-center">
                     <div class="form-check form-switch me-3">
                         <input class="form-check-input auto-rebalance-period-checkbox" type="checkbox" id="rebalance-period-${periodId}" ${period.rebalance ? 'checked' : ''}>
                         <label class="form-check-label" for="rebalance-period-${periodId}" data-bs-toggle="tooltip" data-i18n-title-key="autoRebalanceTooltip">${getTranslation('autoRebalanceLabel')} <i class="bi bi-info-circle"></i></label>
@@ -619,10 +564,6 @@ window.SquirrelPlanApp = {};
             `;
             allocationPeriodsContainer.appendChild(row);
             updateAllocationAssets(row, period.allocation || {});
-            const amountInput = row.querySelector('.allocation-amount');
-            amountInput.addEventListener('input', () => {
-                amountInput.dataset.manualAmount = 'true';
-            });
             row.querySelector('.delete-period-btn').addEventListener('click', () => {
                 row.remove();
                 autoRunSimulationIfEnabled();
@@ -671,41 +612,6 @@ window.SquirrelPlanApp = {};
                 .filter(Boolean);
         }
 
-        function getCurrentSavingsCapacity() {
-            const inputs = getUserInputs();
-            const currentYear = new Date().getFullYear();
-            const retirementAge = (inputs.earlyRetirementAge > 0 && inputs.earlyRetirementAge < inputs.pensionAge)
-                ? inputs.earlyRetirementAge
-                : inputs.pensionAge;
-            const isActive = item => currentYear >= item.startYear && (item.endYear === 0 || currentYear <= item.endYear);
-            const annualize = item => item.frequency === 'monthly' ? item.value * 12 : item.value;
-            const income = inputs.incomes
-                .filter(item => isActive(item) && (item.endYear > 0 || inputs.currentAge < retirementAge))
-                .reduce((sum, item) => sum + annualize(item), 0);
-            const pensionIncome = inputs.pensions.filter(item => {
-                const startAge = !item.startYear || item.startYear === 0 ? inputs.pensionAge : item.startYear;
-                return startAge <= 100 ? inputs.currentAge >= startAge : currentYear >= startAge;
-            }).reduce((sum, item) => sum + annualize(item), 0);
-            const expenses = inputs.expenses.filter(isActive).reduce((sum, item) => sum + annualize(item), 0);
-            const debtPayments = inputs.liabilities.filter(isActive).reduce((sum, item) => {
-                if (item.endYear <= item.startYear) return sum;
-                const years = item.endYear - item.startYear + 1;
-                const payment = item.interestRate > 0
-                    ? item.value * (item.interestRate * Math.pow(1 + item.interestRate, years)) / (Math.pow(1 + item.interestRate, years) - 1)
-                    : item.value / years;
-                return sum + payment;
-            }, 0);
-            return income + pensionIncome - expenses - debtPayments;
-        }
-
-        function updateAllocationAmountSuggestions() {
-            const suggestedAmount = Math.max(getCurrentSavingsCapacity(), 0);
-            document.querySelectorAll('.allocation-amount').forEach(input => {
-                if (input.dataset.manualAmount === 'true') return;
-                input.value = suggestedAmount;
-            });
-        }
-
         function updateSectionTitles() {
             const inputs = getUserInputs();
             const currentYear = new Date().getFullYear();
@@ -714,7 +620,7 @@ window.SquirrelPlanApp = {};
             const formatCurrency = (value) => value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
             const assetTotal = inputs.assets.filter(a => (a.startYear || currentYear) <= currentYear && (!a.endYear || a.endYear >= currentYear)).reduce((sum, a) => sum + a.value, 0);
-            document.querySelector('#section-bank-accounts h3').innerHTML = `Bank Accounts - ${getTranslation('total')} ${currentYear}: ${formatCurrency(assetTotal)}`;
+            document.querySelector('#section-assets h3').innerHTML = `${getTranslation('assetsAccordionButton')} - ${getTranslation('total')} ${currentYear}: ${formatCurrency(assetTotal)}`;
 
             const liabilityTotal = inputs.liabilities.filter(l => (l.startYear || currentYear) <= currentYear && (!l.endYear || l.endYear >= currentYear)).reduce((sum, l) => sum + l.value, 0);
             document.querySelector('#section-liabilities h3').innerHTML = `${getTranslation('liabilitiesAccordionButton')} - ${getTranslation('total')} ${currentYear}: ${formatCurrency(liabilityTotal)}`;
@@ -725,28 +631,8 @@ window.SquirrelPlanApp = {};
             const expenseTotal = inputs.expenses.filter(e => (e.startYear || currentYear) <= currentYear && (!e.endYear || e.endYear >= currentYear)).reduce((sum, e) => sum + (e.frequency === 'monthly' ? e.value * 12 : e.value), 0);
             document.querySelector('#section-expenses h3').innerHTML = `${getTranslation('expensesAccordionButton')} - ${getTranslation('total')} ${currentYear}: ${formatCurrency(expenseTotal)}`;
 
-            const expenseCalculationContent = document.getElementById('expense-calculation-content');
-            if (expenseCalculationContent) {
-                const activeExpenses = inputs.expenses.filter(e => (e.startYear || currentYear) <= currentYear && (!e.endYear || e.endYear >= currentYear));
-                let expenseCalculationHtml = '<div class="text-muted">';
-                if (activeExpenses.length === 0) {
-                    expenseCalculationHtml += 'No active expenses.';
-                } else {
-                    activeExpenses.forEach(e => {
-                        const annualValue = e.frequency === 'monthly' ? e.value * 12 : e.value;
-                        expenseCalculationHtml += `<div>${e.name}: ${formatCurrency(annualValue)} <span class="text-muted">(${e.frequency === 'monthly' ? 'monthly × 12' : 'annual'})</span></div>`;
-                    });
-                }
-                expenseCalculationHtml += `<div class="mt-2 fw-semibold">Total: ${formatCurrency(expenseTotal)}</div></div>`;
-                expenseCalculationContent.innerHTML = expenseCalculationHtml;
-            }
-
-            const savingsTotal = getCurrentSavingsCapacity();
-            document.querySelector('#section-allocation h3').innerHTML = `${getTranslation('savingsAllocationAccordionButton')} - Available ${currentYear}: ${formatCurrency(Math.max(savingsTotal, 0))}`;
-            const allocationGuideDetail = document.getElementById('allocation-guide-detail');
-            if (allocationGuideDetail) {
-                allocationGuideDetail.textContent = ` Available annual savings capacity: ${formatCurrency(Math.max(savingsTotal, 0))}.`;
-            }
+            const savingsTotal = incomeTotal - expenseTotal;
+            document.querySelector('#section-allocation h3').innerHTML = `${getTranslation('savingsAllocationAccordionButton')} - Total ${currentYear}: ${formatCurrency(savingsTotal)}`;
 
             // Populate savings breakdown
             const breakdownContent = document.getElementById('savings-breakdown-content');
@@ -789,7 +675,7 @@ window.SquirrelPlanApp = {};
             const getCategoryData = (container, type) => {
                 const items = [];
                 container.querySelectorAll('.category-row').forEach((row, idx) => {
-                    const nameInput = row.querySelector('.category-name, .property-name');
+                    const nameInput = row.querySelector('.category-name');
                     const name = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : `${type.charAt(0).toUpperCase() + type.slice(1)} ${idx + 1}`;
                     let item = { name };
                     if (type === 'income' || type === 'expense') {
@@ -806,26 +692,11 @@ window.SquirrelPlanApp = {};
                         item.indexed = row.querySelector('.category-indexed').checked;
                         const pensionTypeCheckbox = row.querySelector('.category-pension-type');
                         item.pensionType = pensionTypeCheckbox && pensionTypeCheckbox.checked ? 'pension' : 'social-security';
-                    } else if (type === 'asset' || type === 'account') {
+                    } else if (type === 'asset') {
                         item.value = parseFormattedNumber(row.querySelector('.category-value').value) || 0;
                         item.return = parseFormattedNumber(row.querySelector('.category-return').value) / 100 || 0;
                         item.tax = parseFormattedNumber(row.querySelector('.category-tax').value) / 100 || 0;
                         item.withdrawalOrder = parseInt(parseFormattedNumber(row.querySelector('.category-withdrawal-order').value)) || 99;
-                        item.annualContribution = parseFormattedNumber(row.querySelector('.category-contribution').value) || 0;
-                        item.owner = row.querySelector('.category-owner').value;
-                    } else if (type === 'property') {
-                        item.value = parseFormattedNumber(row.querySelector('.property-value').value) || 0;
-                        item.loanBalance = parseFormattedNumber(row.querySelector('.property-loan').value) || 0;
-                        item.interestRate = parseFormattedNumber(row.querySelector('.property-rate').value) / 100 || 0;
-                        item.termYears = parseFormattedNumber(row.querySelector('.property-term').value) || 0;
-                        item.propertyTax = parseFormattedNumber(row.querySelector('.property-tax').value) || 0;
-                        item.propertyTaxType = row.querySelector('.property-tax-type').value;
-                        item.hoa = parseFormattedNumber(row.querySelector('.property-hoa').value) || 0;
-                        item.owner = row.querySelector('.property-owner').value;
-                        item.return = 0;
-                        item.tax = 0;
-                        item.withdrawalOrder = 99;
-                        item.excludeFromNetWorth = row.querySelector('.property-exclude-from-net-worth').checked;
                     } else if (type === 'liability') {
                         item.value = parseFormattedNumber(row.querySelector('.category-value').value) || 0;
                         item.interestRate = parseFormattedNumber(row.querySelector('.category-interest-rate').value) / 100 || 0;
@@ -850,128 +721,27 @@ window.SquirrelPlanApp = {};
                     allocation: allocation,
                     rebalance: row.querySelector('.auto-rebalance-period-checkbox').checked,
                 });
-                const amountInput = row.querySelector('.allocation-amount');
-                if (amountInput.dataset.manualAmount === 'true') {
-                    allocationPeriods[allocationPeriods.length - 1].amount = parseFormattedNumber(amountInput.value) || 0;
-                }
             });
 
-            const householdMembers = getHouseholdMembersFromTable();
-            const primaryHouseholdMember = householdMembers[0] || {};
             const personName = document.getElementById('person-name').value || '';
-            const bankAccounts = getCategoryData(assetCategoriesContainer, 'asset');
-            const retirementAccounts = getCategoryData(retirementAccountCategoriesContainer, 'account');
-            const properties = getCategoryData(propertyCategoriesContainer, 'property');
-            const propertyExpenses = properties.flatMap(property => {
-                const annualTax = property.propertyTaxType === 'percent' ? property.value * property.propertyTax / 100 : property.propertyTax;
-                const monthlyHOA = property.hoa || 0;
-                const balance = property.loanBalance || 0;
-                const rate = property.interestRate || 0;
-                const months = (property.termYears || 0) * 12;
-                const principalInterest = months > 0 ? (rate === 0 ? balance / months : balance * (rate / 12) * Math.pow(1 + rate / 12, months) / (Math.pow(1 + rate / 12, months) - 1)) : 0;
-                const expenses = [
-                    { name: `${property.name} Property Tax`, value: annualTax, frequency: 'yearly', indexed: false, startYear: new Date().getFullYear(), endYear: 0 },
-                    { name: `${property.name} HOA`, value: monthlyHOA * 12, frequency: 'yearly', indexed: false, startYear: new Date().getFullYear(), endYear: 0 }
-                ].filter(expense => expense.value > 0);
-                if (property.excludeFromNetWorth && principalInterest > 0) {
-                    expenses.push({
-                        name: `${property.name} Mortgage`,
-                        value: principalInterest * 12,
-                        frequency: 'yearly',
-                        indexed: false,
-                        startYear: new Date().getFullYear(),
-                        endYear: property.termYears > 0 ? new Date().getFullYear() + property.termYears - 1 : 0
-                    });
-                }
-                return expenses;
-            });
 
             return {
-                currentAge: parseInt(parseFormattedNumber(document.getElementById('current-age').value)) || primaryHouseholdMember.currentAge || 0,
-                pensionAge: parseInt(parseFormattedNumber(document.getElementById('pension-age').value)) || primaryHouseholdMember.retirementAge || 67,
-                personName: personName || primaryHouseholdMember.name || '',
+                currentAge: parseInt(parseFormattedNumber(document.getElementById('current-age').value)) || 0,
+                pensionAge: parseInt(parseFormattedNumber(document.getElementById('pension-age').value)) || 67,
+                personName: personName,
                 inflation: parseFormattedNumber(document.getElementById('inflation').value) / 100 || 0,
-                householdMembers: householdMembers,
                 pensions: getCategoryData(pensionCategoriesContainer, 'pension'),
                 earlyRetirementAge: parseInt(parseFormattedNumber(document.getElementById('early-retirement-age').value)) || 0,
                 withdrawalRate: parseFormattedNumber(document.getElementById('withdrawal-rate').value) / 100 || 0,
                 incomes: getCategoryData(incomeCategoriesContainer, 'income'),
-                expenses: [...getCategoryData(expenseCategoriesContainer, 'expense'), ...propertyExpenses],
-                assets: [...bankAccounts, ...retirementAccounts, ...properties.filter(p => !p.excludeFromNetWorth)],
-                liabilities: properties.filter(p => !p.excludeFromNetWorth && p.loanBalance > 0 && p.termYears > 0).map(p => ({ name: `${p.name} Mortgage`, value: p.loanBalance, interestRate: p.interestRate, startYear: new Date().getFullYear(), endYear: new Date().getFullYear() + p.termYears - 1 })),
-                allocationPeriods: [],
+                expenses: getCategoryData(expenseCategoriesContainer, 'expense'),
+                assets: getCategoryData(assetCategoriesContainer, 'asset'),
+                liabilities: getCategoryData(liabilityCategoriesContainer, 'liability'),
+                allocationPeriods: allocationPeriods,
             };
         }
 
         // ==================== SIMULATION ====================
-        function getHouseholdMembersFromTable() {
-            const table = document.getElementById('household-members-table');
-            if (!table) return [];
-
-            return Array.from(table.querySelectorAll('tbody tr')).map((row, index) => ({
-                name: row.querySelector('.household-member-name').value.trim() || `Person${index + 1}`,
-                currentAge: parseInt(parseFormattedNumber(row.querySelector('.household-member-age').value)) || 0,
-                retirementAge: parseInt(parseFormattedNumber(row.querySelector('.household-member-retirement-age').value)) || 67
-            }));
-        }
-
-        function addHouseholdMember(member = {}) {
-            const tableBody = document.querySelector('#household-members-table tbody');
-            if (!tableBody) return;
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><input type="text" class="form-control form-control-sm household-member-name" value="${member.name || ''}" aria-label="Household member name"></td>
-                <td><input type="text" class="form-control form-control-sm household-member-age" value="${member.currentAge ?? ''}" aria-label="Household member current age"></td>
-                <td><input type="text" class="form-control form-control-sm household-member-retirement-age" value="${member.retirementAge ?? ''}" aria-label="Household member retirement age"></td>
-                <td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger remove-household-member-btn">Remove</button></td>
-            `;
-
-            const nameInput = row.querySelector('.household-member-name');
-            const ageInput = row.querySelector('.household-member-age');
-            const retirementAgeInput = row.querySelector('.household-member-retirement-age');
-
-            [nameInput, ageInput, retirementAgeInput].forEach(input => {
-                input.addEventListener('input', syncPrimaryHouseholdMember);
-            });
-
-            row.querySelector('.remove-household-member-btn').addEventListener('click', () => {
-                row.remove();
-                if (!tableBody.children.length) {
-                    addHouseholdMember();
-                }
-                syncPrimaryHouseholdMember();
-            });
-
-            tableBody.appendChild(row);
-            syncPrimaryHouseholdMember();
-        }
-
-        function renderHouseholdMembersTable(members = []) {
-            const tableBody = document.querySelector('#household-members-table tbody');
-            if (!tableBody) return;
-
-            tableBody.innerHTML = '';
-            if (!Array.isArray(members) || members.length === 0) {
-                addHouseholdMember({
-                    name: document.getElementById('person-name').value || 'Person1',
-                    currentAge: parseInt(parseFormattedNumber(document.getElementById('current-age').value)) || 30,
-                    retirementAge: parseInt(parseFormattedNumber(document.getElementById('pension-age').value)) || 67
-                });
-                return;
-            }
-
-            members.forEach(member => addHouseholdMember(member));
-        }
-
-        function syncPrimaryHouseholdMember() {
-            const members = getHouseholdMembersFromTable();
-            const primaryMember = members[0] || {};
-            document.getElementById('person-name').value = primaryMember.name || '';
-            document.getElementById('current-age').value = primaryMember.currentAge ? String(primaryMember.currentAge) : '';
-            document.getElementById('pension-age').value = primaryMember.retirementAge ? String(primaryMember.retirementAge) : '';
-        }
-
         function runAndRender(isManualRun = false) {
             if (isManualRun) {
                 assetColors = {};
@@ -1073,7 +843,7 @@ window.SquirrelPlanApp = {};
             // Change the label to include the age
             // const labels = results.map(r => r.year);
             const labels = results.map(r => r.year + ' [' + r.age + ']');
-            const assetKeys = [...new Set(results.flatMap(row => Object.keys(row.assets)))];
+            const assetKeys = Object.keys(results[0].assets);
             const netWorthData = results.map(r => r.net_worth);
 
             if (wealthChart) {
@@ -1087,7 +857,7 @@ window.SquirrelPlanApp = {};
                     if (dataset.type === 'line') {
                         dataset.data = netWorthData;
                     } else if (newAssetKeys.has(dataset.label)) {
-                        dataset.data = results.map(r => r.assets[dataset.label] || 0);
+                        dataset.data = results.map(r => r.assets[dataset.label]);
                     }
                 });
 
@@ -1114,7 +884,7 @@ window.SquirrelPlanApp = {};
             } else {
                 const assetDatasets = assetKeys.map(key => ({
                     label: key,
-                    data: results.map(r => r.assets[key] || 0),
+                    data: results.map(r => r.assets[key]),
                     backgroundColor: getAssetColor(key),
                 }));
 
@@ -1164,26 +934,12 @@ window.SquirrelPlanApp = {};
             return false;
         }
 
-        function persistCurrentPlanChanges() {
-            const appData = getAppData();
-            if (!appData || !appData.plans || !appData.settings) return null;
-
-            const activePlanIndex = appData.plans.findIndex(p => p.name === appData.settings.activePlanName);
-            if (activePlanIndex === -1) return null;
-
-            appData.plans[activePlanIndex].data = getUserInputs();
-            appData.plans[activePlanIndex].config = appData.plans[activePlanIndex].config || { monteCarloEnabled: false };
-            saveAppData(appData);
-            return appData;
-        }
-
         function exportData() {
-            const persistedAppData = persistCurrentPlanChanges() || getAppData();
-            const exportPayload = {
-                settings: persistedAppData.settings,
-                plans: persistedAppData.plans
+            const appData = getAppData();
+            const userPlans = {
+                plans: appData.plans
             };
-            const json = JSON.stringify(exportPayload, null, 2);
+            const json = JSON.stringify(userPlans, null, 2);
             const blob = new Blob([json], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1204,37 +960,19 @@ window.SquirrelPlanApp = {};
                 try {
                     const importedData = JSON.parse(e.target.result);
                     const appData = getAppData();
-                    const importedSettings = importedData.settings || {};
 
-                    if (importedSettings.theme) {
-                        appData.settings.theme = importedSettings.theme;
-                    }
-                    if (importedSettings.language) {
-                        appData.settings.language = importedSettings.language;
-                    }
-                    if (importedSettings.activePlanName) {
-                        appData.settings.activePlanName = importedSettings.activePlanName;
-                    }
-
-                    if (Array.isArray(importedData.plans) && importedData.plans.length > 0) {
+                    if (importedData.plans) { // New multi-plan format
                         importedData.plans.forEach(importedPlan => {
-                            const originalName = importedPlan.name || 'Imported Plan';
+                            const originalName = importedPlan.name;
                             let newName = originalName;
                             let i = 1;
                             while (appData.plans.some(p => p.name === newName)) {
                                 newName = `${originalName} (${i++})`;
                             }
-
-                            appData.plans.push({
-                                ...JSON.parse(JSON.stringify(importedPlan)),
-                                name: newName
-                            });
+                            importedPlan.name = newName;
+                            appData.plans.push(importedPlan);
                         });
-
-                        if (!appData.settings.activePlanName) {
-                            appData.settings.activePlanName = importedData.plans[0].name;
-                        }
-                    } else {
+                    } else { // Old single-plan format, treat as a single plan import
                         let planName = 'Imported Plan';
                         let i = 1;
                         while (appData.plans.find(p => p.name === planName)) {
@@ -1242,7 +980,7 @@ window.SquirrelPlanApp = {};
                         }
                         const newPlan = {
                             name: planName,
-                            data: JSON.parse(JSON.stringify(importedData)),
+                            data: importedData,
                             config: { monteCarloEnabled: false }
                         };
                         appData.plans.push(newPlan);
@@ -1251,6 +989,7 @@ window.SquirrelPlanApp = {};
 
                     saveAppData(appData);
 
+                    // Instead of reloading, just load the data and re-render
                     loadDataFromLocalStorage();
                     runAndRender(false);
                     updateSectionTitles();
@@ -1258,6 +997,7 @@ window.SquirrelPlanApp = {};
                 } catch (error) {
                     console.error('Error importing data:', error);
                 } finally {
+                    // Reset file input to allow re-uploading the same file
                     event.target.value = null;
                 }
             };
@@ -1266,19 +1006,10 @@ window.SquirrelPlanApp = {};
 
         // ==================== UI POPULATION ====================
         function setUserValues(data) {
-            const householdMembers = Array.isArray(data.householdMembers) && data.householdMembers.length > 0
-                ? data.householdMembers
-                : [{
-                    name: data.personName || 'Person1',
-                    currentAge: data.currentAge || 30,
-                    retirementAge: data.pensionAge || 67
-                }];
-
-            renderHouseholdMembersTable(householdMembers);
-            document.getElementById('person-name').value = householdMembers[0]?.name || data.personName || '';
-            document.getElementById('current-age').value = String(householdMembers[0]?.currentAge || data.currentAge || 30);
+            document.getElementById('person-name').value = data.personName || '';
+            document.getElementById('current-age').value = String(data.currentAge);
             document.getElementById('inflation').value = String(data.inflation * 100);
-            document.getElementById('pension-age').value = String(householdMembers[0]?.retirementAge || data.pensionAge || 67);
+            document.getElementById('pension-age').value = String(data.pensionAge || '');
             document.getElementById('early-retirement-age').value = String(data.earlyRetirementAge || '');
 
             document.getElementById('withdrawal-rate').value = String(data.withdrawalRate * 100);
@@ -1288,17 +1019,11 @@ window.SquirrelPlanApp = {};
             expenseCategoriesContainer.innerHTML = '';
             data.expenses.forEach(e => addCategory(expenseCategoriesContainer, 'expense', { ...e, value: String(e.value) }));
             assetCategoriesContainer.innerHTML = '';
-            retirementAccountCategoriesContainer.innerHTML = '';
-            propertyCategoriesContainer.innerHTML = '';
             data.assets.forEach(a => {
                 const modA = { ...a, value: String(a.value) };
-                if (a.loanBalance !== undefined || a.interestRate !== undefined && a.termYears !== undefined) {
-                    addCategory(propertyCategoriesContainer, 'property', modA);
-                } else {
-                    if (typeof modA.return === 'number') modA.return = String(modA.return * 100);
-                    if (typeof modA.tax === 'number') modA.tax = String(modA.tax * 100);
-                    addCategory(assetCategoriesContainer, 'asset', modA);
-                }
+                if (typeof modA.return === 'number') modA.return = String(modA.return * 100);
+                if (typeof modA.tax === 'number') modA.tax = String(modA.tax * 100);
+                addCategory(assetCategoriesContainer, 'asset', modA);
             });
             liabilityCategoriesContainer.innerHTML = '';
             data.liabilities.forEach(l => {
@@ -1341,10 +1066,10 @@ window.SquirrelPlanApp = {};
             tableBody.innerHTML = '';
             if (results.length === 0) return;
 
-            const assetKeys = [...new Set(results.flatMap(row => Object.keys(row.assets)))];
-            const liabilityKeys = [...new Set(results.flatMap(row => Object.keys(row.liabilities)))];
+            const assetKeys = Object.keys(results[0].assets);
+            const liabilityKeys = Object.keys(results[0].liabilities);
             const headerRow = document.createElement('tr');
-            let headerHtml = `<th>${getTranslation('yearHeader')}</th><th>${getTranslation('ageHeader')}</th><th>${getTranslation('netIncomeHeader')}</th><th>${getTranslation('expensesHeader')}</th><th>${getTranslation('savingsCapacityHeader')}</th><th>Saved to Assets</th><th>${getTranslation('netWorthHeader')}</th>`;
+            let headerHtml = `<th>${getTranslation('yearHeader')}</th><th>${getTranslation('ageHeader')}</th><th>${getTranslation('netIncomeHeader')}</th><th>${getTranslation('expensesHeader')}</th><th>${getTranslation('savingsCapacityHeader')}</th><th>${getTranslation('savingsRateHeader')}</th><th>${getTranslation('netWorthHeader')}</th>`;
             assetKeys.forEach(key => headerHtml += `<th>${getTranslation('assetHeader', { asset: key })}</th>`);
             liabilityKeys.forEach(key => headerHtml += `<th>${getTranslation('liabilityHeader', { liability: key })}</th>`);
             headerRow.innerHTML = headerHtml;
@@ -1354,7 +1079,7 @@ window.SquirrelPlanApp = {};
             const formatOptions = { minimumFractionDigits: 0, maximumFractionDigits: 0 };
             results.forEach(row => {
                 const tr = document.createElement('tr');
-                let rowHtml = `<td>${row.year}</td><td>${row.age}</td><td>${row.net_income.toLocaleString(locale, formatOptions)}</td><td>${row.expenses.toLocaleString(locale, formatOptions)}</td><td>${row.savings_capacity.toLocaleString(locale, formatOptions)}</td><td>${(row.savings_allocated || 0).toLocaleString(locale, formatOptions)}</td><td>${row.net_worth.toLocaleString(locale, formatOptions)}</td>`;
+                let rowHtml = `<td>${row.year}</td><td>${row.age}</td><td>${row.net_income.toLocaleString(locale, formatOptions)}</td><td>${row.expenses.toLocaleString(locale, formatOptions)}</td><td>${row.savings_capacity.toLocaleString(locale, formatOptions)}</td><td>${(row.savings_rate * 100).toFixed(0)}%</td><td>${row.net_worth.toLocaleString(locale, formatOptions)}</td>`;
                 assetKeys.forEach(key => rowHtml += `<td>${(row.assets[key] || 0).toLocaleString(locale, formatOptions)}</td>`);
                 liabilityKeys.forEach(key => rowHtml += `<td>${(row.liabilities[key] ? row.liabilities[key].value : 0).toLocaleString(locale, formatOptions)}</td>`);
                 tr.innerHTML = rowHtml;
@@ -1376,16 +1101,9 @@ window.SquirrelPlanApp = {};
             document.getElementById('pension-age').value = '';
             document.getElementById('early-retirement-age').value = '';
             document.getElementById('withdrawal-rate').value = '';
-            const householdTableBody = document.querySelector('#household-members-table tbody');
-            if (householdTableBody) {
-                householdTableBody.innerHTML = '';
-                addHouseholdMember({ name: '', currentAge: '', retirementAge: '' });
-            }
             incomeCategoriesContainer.innerHTML = '';
             expenseCategoriesContainer.innerHTML = '';
             assetCategoriesContainer.innerHTML = '';
-            retirementAccountCategoriesContainer.innerHTML = '';
-            propertyCategoriesContainer.innerHTML = '';
             liabilityCategoriesContainer.innerHTML = '';
             pensionCategoriesContainer.innerHTML = '';
             allocationPeriodsContainer.innerHTML = '';
@@ -1750,14 +1468,10 @@ window.SquirrelPlanApp = {};
 
         initializeTooltips();
         initializeSortable();
-        renderHouseholdMembersTable([]);
         applyNumberFormatting(document.body);
 
         // ==================== EVENT LISTENERS ====================
-        document.getElementById('add-household-member-btn').addEventListener('click', () => addHouseholdMember());
         document.getElementById('add-asset-category-btn').addEventListener('click', () => addCategory(assetCategoriesContainer, 'asset'));
-        document.getElementById('add-retirement-account-btn').addEventListener('click', () => addCategory(retirementAccountCategoriesContainer, 'account'));
-        document.getElementById('add-property-btn').addEventListener('click', () => addCategory(propertyCategoriesContainer, 'property'));
         document.getElementById('add-liability-category-btn').addEventListener('click', () => addCategory(liabilityCategoriesContainer, 'liability'));
         document.getElementById('add-income-category-btn').addEventListener('click', () => {
             const personName = document.getElementById('person-name').value || 'Person1';

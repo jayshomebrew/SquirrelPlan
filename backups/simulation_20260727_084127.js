@@ -99,7 +99,7 @@ function runSimulation(inputs, isMonteCarlo = false) {
             if (a.startYear === currentYear) {
                 assets[a.name] = a.value;
             }
-            if (a.endYear > 0 && a.endYear < currentYear) {
+            if (a.endYear === currentYear) {
                 delete assets[a.name];
             }
         });
@@ -167,15 +167,25 @@ function runSimulation(inputs, isMonteCarlo = false) {
 
         let totalAnnualIncome = Object.values(tempAnnualIncomes).reduce((a, b) => a + b, 0) + annualPension;
 
-        const scheduledLiabilityPayments = Object.values(liabilities)
-            .filter(liability => liability.annualRepayment > 0)
-            .reduce((sum, liability) => sum + liability.annualRepayment, 0);
-        const totalAnnualExpenses = Object.values(tempAnnualExpenses).reduce((a, b) => a + b, 0) + scheduledLiabilityPayments;
+        const totalAnnualExpenses = Object.values(tempAnnualExpenses).reduce((a, b) => a + b, 0);
         const savingsCapacity = totalAnnualIncome - totalAnnualExpenses;
-        const openingAssets = Object.values(assets).reduce((a, b) => a + b, 0);
-        const openingLiabilities = Object.values(liabilities).reduce((sum, l) => sum + l.value, 0);
-        const openingNetWorth = openingAssets - openingLiabilities;
+        const totalAssets = Object.values(assets).reduce((a, b) => a + b, 0);
+        const totalLiabilities = Object.values(liabilities).reduce((sum, l) => sum + l.value, 0);
+        const netWorth = totalAssets - totalLiabilities;
         const savingsRate = totalAnnualIncome > 0 ? savingsCapacity / totalAnnualIncome : 0;
+
+        // Each row represents the balance at the start of its labeled year.
+        results.push({
+            year: currentYear,
+            age: currentAge,
+            net_income: totalAnnualIncome,
+            expenses: totalAnnualExpenses,
+            savings_capacity: savingsCapacity,
+            savings_rate: savingsRate,
+            net_worth: netWorth,
+            assets: { ...assets },
+            liabilities: JSON.parse(JSON.stringify(liabilities))
+        });
 
 
         Object.keys(liabilities).forEach(name => {
@@ -204,18 +214,6 @@ function runSimulation(inputs, isMonteCarlo = false) {
         });
 
         let uncoveredDeficit = 0;
-        let savingsAllocated = 0;
-        const applyAccountContributions = availableSavings => {
-            const contributions = Object.keys(assets).map(name => ({ name, amount: assetMap.get(name)?.annualContribution || 0 }))
-                .filter(item => item.amount > 0);
-            const plannedTotal = contributions.reduce((sum, item) => sum + item.amount, 0);
-            const scale = plannedTotal > availableSavings && plannedTotal > 0 ? availableSavings / plannedTotal : 1;
-            contributions.forEach(item => {
-                const contribution = item.amount * scale;
-                assets[item.name] += contribution;
-                savingsAllocated += contribution;
-            });
-        };
 
         if (currentAge < retirementAge) {
             let savings = savingsCapacity;
@@ -239,10 +237,6 @@ function runSimulation(inputs, isMonteCarlo = false) {
                 });
                 uncoveredDeficit = deficit;
             } else { // Surplus
-                const currentAllocation = getCurrentAllocation(currentYear, inputs.allocationPeriods);
-                let savings = currentAllocation && currentAllocation.amount !== undefined
-                    ? Math.min(savingsCapacity, Math.max(currentAllocation.amount, 0))
-                    : savingsCapacity;
                 const expenseBuffer = totalAnnualExpenses / 2;
                 if (assetMap.has('Savings Account')) {
                     if (assets['Savings Account'] === undefined) assets['Savings Account'] = 0;
@@ -251,27 +245,32 @@ function runSimulation(inputs, isMonteCarlo = false) {
                         const bufferTopUp = Math.min(savings, expenseBuffer - assets['Savings Account']);
                         assets['Savings Account'] += bufferTopUp;
                         savings -= bufferTopUp;
-                        savingsAllocated += bufferTopUp;
                     }
                 }
 
+                const currentAllocation = getCurrentAllocation(currentYear, inputs.allocationPeriods);
                 if (currentAllocation && savings > 0) {
-                    const allocationTotal = Object.values(currentAllocation.allocation)
-                        .reduce((sum, percentage) => sum + Math.max(percentage, 0), 0);
-                    const allocationScale = allocationTotal > 1 ? 1 / allocationTotal : 1;
+                    let allocated = 0;
                     Object.keys(currentAllocation.allocation).forEach(assetName => {
                         if (assets[assetName] !== undefined) {
-                            const allocatedAmount = savings * Math.max(currentAllocation.allocation[assetName], 0) * allocationScale;
+                            const allocatedAmount = savings * currentAllocation.allocation[assetName];
                             assets[assetName] += allocatedAmount;
-                            savingsAllocated += allocatedAmount;
+                            allocated += allocatedAmount;
                         }
                     });
+                    const unallocated = savings - allocated;
+                    if (unallocated > 0) {
+                        if (assets['Income'] === undefined) assets['Income'] = 0;
+                        assets['Income'] += unallocated;
+                    }
+                } else if (savings > 0) {
+                    if (assets['Income'] === undefined) assets['Income'] = 0;
+                    assets['Income'] += savings;
                 }
-                if (!currentAllocation) applyAccountContributions(savingsCapacity);
             }
         } else {
             if (initialPensionWithdrawal === 0) {
-                initialPensionWithdrawal = openingNetWorth * inputs.withdrawalRate;
+                initialPensionWithdrawal = netWorth * inputs.withdrawalRate;
 					if (currentAge === LEGAL_PENSION_AGE){
 						amountPensionMessage = initialPensionWithdrawal
 					}
@@ -283,10 +282,7 @@ function runSimulation(inputs, isMonteCarlo = false) {
 
             if (savingsCapacity > 0) {
                 // Surplus from pension, invest it
-                const currentAllocation = getCurrentAllocation(currentYear, inputs.allocationPeriods);
-                let savings = currentAllocation && currentAllocation.amount !== undefined
-                    ? Math.min(savingsCapacity, Math.max(currentAllocation.amount, 0))
-                    : savingsCapacity;
+                let savings = savingsCapacity;
                 const expenseBuffer = totalAnnualExpenses / 2;
                 if (assetMap.has('Savings Account')) {
                     if (assets['Savings Account'] === undefined) assets['Savings Account'] = 0;
@@ -295,23 +291,28 @@ function runSimulation(inputs, isMonteCarlo = false) {
                         const bufferTopUp = Math.min(savings, expenseBuffer - assets['Savings Account']);
                         assets['Savings Account'] += bufferTopUp;
                         savings -= bufferTopUp;
-                        savingsAllocated += bufferTopUp;
                     }
                 }
 
+                const currentAllocation = getCurrentAllocation(currentYear, inputs.allocationPeriods);
                 if (currentAllocation && savings > 0) {
-                    const allocationTotal = Object.values(currentAllocation.allocation)
-                        .reduce((sum, percentage) => sum + Math.max(percentage, 0), 0);
-                    const allocationScale = allocationTotal > 1 ? 1 / allocationTotal : 1;
+                    let allocated = 0;
                     Object.keys(currentAllocation.allocation).forEach(assetName => {
                         if (assets[assetName] !== undefined) {
-                            const allocatedAmount = savings * Math.max(currentAllocation.allocation[assetName], 0) * allocationScale;
+                            const allocatedAmount = savings * currentAllocation.allocation[assetName];
                             assets[assetName] += allocatedAmount;
-                            savingsAllocated += allocatedAmount;
+                            allocated += allocatedAmount;
                         }
                     });
+                    const unallocated = savings - allocated;
+                    if (unallocated > 0) {
+                        if (assets['Income'] === undefined) assets['Income'] = 0;
+                        assets['Income'] += unallocated;
+                    }
+                } else if (savings > 0) {
+                    if (assets['Income'] === undefined) assets['Income'] = 0;
+                    assets['Income'] += savings;
                 }
-                if (!currentAllocation) applyAccountContributions(savingsCapacity);
             }
 
             const activeAssetNames = Object.keys(assets);
@@ -348,7 +349,7 @@ function runSimulation(inputs, isMonteCarlo = false) {
         const currentAllocation = getCurrentAllocation(currentYear, inputs.allocationPeriods);
         if (currentAllocation && currentAllocation.rebalance) {
             const rebalanceAssets = Object.keys(currentAllocation.allocation)
-                .filter(assetName => currentAllocation.allocation[assetName] > 0 && assets[assetName] !== undefined);
+                .filter(assetName => currentAllocation.allocation[assetName] > 0);
 
             if (rebalanceAssets.length > 0) {
                 const totalRebalanceValue = rebalanceAssets.reduce((total, assetName) => total + assets[assetName], 0);
@@ -360,24 +361,6 @@ function runSimulation(inputs, isMonteCarlo = false) {
                 });
             }
         }
-
-        // Each table row is the closing balance after the labeled year's cash flow.
-        const totalAssets = Object.values(assets).reduce((a, b) => a + b, 0);
-        const totalLiabilities = Object.values(liabilities).reduce((sum, l) => sum + l.value, 0);
-        const netWorth = totalAssets - totalLiabilities;
-
-        results.push({
-            year: currentYear,
-            age: currentAge,
-            net_income: totalAnnualIncome,
-            expenses: totalAnnualExpenses,
-            savings_capacity: savingsCapacity,
-            savings_allocated: savingsAllocated,
-            savings_rate: savingsRate,
-            net_worth: netWorth,
-            assets: { ...assets },
-            liabilities: JSON.parse(JSON.stringify(liabilities))
-        });
 
         Object.keys(annualIncomes).forEach(name => {
             const income = incomeMap.get(name);
@@ -408,8 +391,7 @@ function runSimulation(inputs, isMonteCarlo = false) {
 
 function getCurrentAllocation(currentYear, allocationPeriods) {
     let currentAllocation = null;
-    const sortedPeriods = [...allocationPeriods].sort((a, b) => a.startYear - b.startYear);
-    for (const period of sortedPeriods) {
+    for (const period of allocationPeriods) {
         if (currentYear >= period.startYear) {
             currentAllocation = period;
         } else {

@@ -66,7 +66,8 @@ function getSampleData(stage) {
             { name: 'Social Security', value: '2000', frequency: 'monthly', indexed: true, startYear: '0' }
         ],
         expenses: [
-            { name: getTranslation('livingExpenses'), value: '3000', frequency: 'monthly', indexed: true }
+            { name: getTranslation('livingExpenses'), value: '3000', frequency: 'monthly', indexed: true },
+            { name: getTranslation('mortgageRepayment'), value: '1500', frequency: 'monthly', indexed: false, endYear: '2044' }
         ],
         allocationPeriods: [
             { allocation: { [getTranslation('stocks')]: 0.70, [getTranslation('bonds')]: 0.30 }, rebalance: true },

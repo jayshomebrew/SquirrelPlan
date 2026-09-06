@@ -1,0 +1,660 @@
+{
+  "generatedAt": "2026-07-27 08:02:54 -07:00",
+  "backupPath": "C:\\Users\\jay.meyer\\OneDrive - Thermo Fisher Scientific\\Projects\\VScode\\RetirementPlan\\backups\\source-20260727_080214",
+  "root": "C:\\Users\\jay.meyer\\OneDrive - Thermo Fisher Scientific\\Projects\\VScode\\RetirementPlan",
+  "files": [
+    {
+      "path": "README.md",
+      "purpose": "Project overview, run instructions, and repository conventions",
+      "sizeBytes": 3756,
+      "symbols": []
+    },
+    {
+      "path": "index.html",
+      "purpose": "Single-page app layout, UI sections, and script/style entry points",
+      "sizeBytes": 21313,
+      "symbols": []
+    },
+    {
+      "path": "style.css",
+      "purpose": "Custom visual styling, layout, responsive rules, and theme variables",
+      "sizeBytes": 6236,
+      "symbols": []
+    },
+    {
+      "path": "sample-data.js",
+      "purpose": "Preset financial scenarios used for onboarding and demos",
+      "sizeBytes": 5321,
+      "symbols": [
+        {
+          "name": "getSampleData",
+          "kind": "function",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "script.js",
+      "purpose": "Main application bootstrap, plan management, simulation orchestration, import/export, rendering, and UI wiring",
+      "sizeBytes": 101556,
+      "symbols": [
+        {
+          "name": "SquirrelPlanApp",
+          "kind": "window export",
+          "line": 9
+        },
+        {
+          "name": "getBlankPlanData",
+          "kind": "function",
+          "line": 24
+        },
+        {
+          "name": "getInitialAppData",
+          "kind": "function",
+          "line": 41
+        },
+        {
+          "name": "getAppData",
+          "kind": "function",
+          "line": 101
+        },
+        {
+          "name": "saveAppData",
+          "kind": "function",
+          "line": 105
+        },
+        {
+          "name": "getActivePlan",
+          "kind": "function",
+          "line": 109
+        },
+        {
+          "name": "saveActivePlanData",
+          "kind": "function",
+          "line": 117
+        },
+        {
+          "name": "getActivePlanConfig",
+          "kind": "function",
+          "line": 147
+        },
+        {
+          "name": "saveActivePlanConfig",
+          "kind": "function",
+          "line": 152
+        },
+        {
+          "name": "getSettings",
+          "kind": "function",
+          "line": 161
+        },
+        {
+          "name": "saveSettings",
+          "kind": "function",
+          "line": 166
+        },
+        {
+          "name": "getUniqueId",
+          "kind": "function",
+          "line": 179
+        },
+        {
+          "name": "autoRunSimulationIfEnabled",
+          "kind": "function",
+          "line": 195
+        },
+        {
+          "name": "getAssetColor",
+          "kind": "function",
+          "line": 200
+        },
+        {
+          "name": "displayAlerts",
+          "kind": "function",
+          "line": 212
+        },
+        {
+          "name": "validateAllInputs",
+          "kind": "function",
+          "line": 227
+        },
+        {
+          "name": "parseFormattedNumber",
+          "kind": "function",
+          "line": 296
+        },
+        {
+          "name": "formatNumberForDisplay",
+          "kind": "function",
+          "line": 304
+        },
+        {
+          "name": "onFocusNumber",
+          "kind": "function",
+          "line": 315
+        },
+        {
+          "name": "onBlurNumber",
+          "kind": "function",
+          "line": 323
+        },
+        {
+          "name": "applyNumberFormatting",
+          "kind": "function",
+          "line": 335
+        },
+        {
+          "name": "syncAllocationPeriodsAssets",
+          "kind": "function",
+          "line": 350
+        },
+        {
+          "name": "addCategory",
+          "kind": "function",
+          "line": 362
+        },
+        {
+          "name": "getAssetFields",
+          "kind": "function",
+          "line": 473
+        },
+        {
+          "name": "getLiabilityFields",
+          "kind": "function",
+          "line": 487
+        },
+        {
+          "name": "getIncomeFields",
+          "kind": "function",
+          "line": 499
+        },
+        {
+          "name": "getExpenseFields",
+          "kind": "function",
+          "line": 514
+        },
+        {
+          "name": "getPensionFields",
+          "kind": "function",
+          "line": 527
+        },
+        {
+          "name": "addAllocationPeriod",
+          "kind": "function",
+          "line": 546
+        },
+        {
+          "name": "updateAllocationAssets",
+          "kind": "function",
+          "line": 576
+        },
+        {
+          "name": "updateAllocationTotal",
+          "kind": "function",
+          "line": 597
+        },
+        {
+          "name": "getAssetNames",
+          "kind": "function",
+          "line": 609
+        },
+        {
+          "name": "updateSectionTitles",
+          "kind": "function",
+          "line": 615
+        },
+        {
+          "name": "getUserInputs",
+          "kind": "function",
+          "line": 674
+        },
+        {
+          "name": "runAndRender",
+          "kind": "function",
+          "line": 745
+        },
+        {
+          "name": "renderCharts",
+          "kind": "function",
+          "line": 823
+        },
+        {
+          "name": "loadDataFromLocalStorage",
+          "kind": "function",
+          "line": 928
+        },
+        {
+          "name": "exportData",
+          "kind": "function",
+          "line": 937
+        },
+        {
+          "name": "importData",
+          "kind": "function",
+          "line": 954
+        },
+        {
+          "name": "setUserValues",
+          "kind": "function",
+          "line": 1008
+        },
+        {
+          "name": "renderTable",
+          "kind": "function",
+          "line": 1062
+        },
+        {
+          "name": "getRandomColor",
+          "kind": "function",
+          "line": 1090
+        },
+        {
+          "name": "clearAllInputs",
+          "kind": "function",
+          "line": 1097
+        },
+        {
+          "name": "initDefaultData",
+          "kind": "function",
+          "line": 1112
+        },
+        {
+          "name": "clearSimulationResults",
+          "kind": "function",
+          "line": 1129
+        },
+        {
+          "name": "initializeTooltips",
+          "kind": "function",
+          "line": 1141
+        },
+        {
+          "name": "initializeSortable",
+          "kind": "function",
+          "line": 1145
+        },
+        {
+          "name": "runAndRenderMonteCarlo",
+          "kind": "function",
+          "line": 1161
+        },
+        {
+          "name": "renderMonteCarloChart",
+          "kind": "function",
+          "line": 1188
+        },
+        {
+          "name": "populatePlansModal",
+          "kind": "function",
+          "line": 1262
+        },
+        {
+          "name": "applyTheme",
+          "kind": "function",
+          "line": 1549
+        },
+        {
+          "name": "manageSlider",
+          "kind": "function",
+          "line": 1588
+        }
+      ]
+    },
+    {
+      "path": "simulation.js",
+      "purpose": "Deterministic projection engine, Monte Carlo simulation, allocation logic, and retirement checks",
+      "sizeBytes": 19724,
+      "symbols": [
+        {
+          "name": "runSimulation",
+          "kind": "function",
+          "line": 1
+        },
+        {
+          "name": "getCurrentAllocation",
+          "kind": "function",
+          "line": 381
+        },
+        {
+          "name": "checkForEarlyRetirement",
+          "kind": "function",
+          "line": 393
+        },
+        {
+          "name": "randomNormal",
+          "kind": "function",
+          "line": 408
+        },
+        {
+          "name": "runMonteCarloSimulation",
+          "kind": "function",
+          "line": 416
+        }
+      ]
+    },
+    {
+      "path": "sankey.js",
+      "purpose": "Custom SVG Sankey-style summary chart for income, expenses, assets, and liabilities",
+      "sizeBytes": 19602,
+      "symbols": [
+        {
+          "name": "svgEl",
+          "kind": "function",
+          "line": 37
+        },
+        {
+          "name": "hexToRgba",
+          "kind": "function",
+          "line": 43
+        },
+        {
+          "name": "fmt",
+          "kind": "function",
+          "line": 48
+        },
+        {
+          "name": "clamp",
+          "kind": "function",
+          "line": 52
+        },
+        {
+          "name": "renderSankeyChart",
+          "kind": "window export",
+          "line": 59
+        },
+        {
+          "name": "pensionActive",
+          "kind": "function",
+          "line": 72
+        },
+        {
+          "name": "annual",
+          "kind": "function",
+          "line": 80
+        },
+        {
+          "name": "activeNow",
+          "kind": "function",
+          "line": 85
+        },
+        {
+          "name": "barH",
+          "kind": "function",
+          "line": 162
+        },
+        {
+          "name": "layoutCol",
+          "kind": "function",
+          "line": 165
+        },
+        {
+          "name": "maxBottom",
+          "kind": "function",
+          "line": 199
+        },
+        {
+          "name": "drawNode",
+          "kind": "function",
+          "line": 229
+        },
+        {
+          "name": "drawLabel",
+          "kind": "function",
+          "line": 248
+        },
+        {
+          "name": "drawLink",
+          "kind": "function",
+          "line": 267
+        },
+        {
+          "name": "hdr",
+          "kind": "function",
+          "line": 281
+        }
+      ]
+    },
+    {
+      "path": "translator.js",
+      "purpose": "Translation dictionaries plus page language switching and lookup helpers",
+      "sizeBytes": 100403,
+      "symbols": [
+        {
+          "name": "translatePage",
+          "kind": "function",
+          "line": 1306
+        },
+        {
+          "name": "getTranslation",
+          "kind": "function",
+          "line": 1340
+        },
+        {
+          "name": "getTranslation",
+          "kind": "window export",
+          "line": 1351
+        }
+      ]
+    },
+    {
+      "path": "src\\data.js",
+      "purpose": "Local-storage persistence helpers and app data migration utilities",
+      "sizeBytes": 3110,
+      "symbols": [
+        {
+          "name": "getBlankPlanData",
+          "kind": "function",
+          "line": 8
+        },
+        {
+          "name": "getInitialAppData",
+          "kind": "function",
+          "line": 26
+        },
+        {
+          "name": "getAppData",
+          "kind": "function",
+          "line": 86
+        },
+        {
+          "name": "saveAppData",
+          "kind": "function",
+          "line": 90
+        },
+        {
+          "name": "getActivePlan",
+          "kind": "function",
+          "line": 94
+        },
+        {
+          "name": "SquirrelPlanData",
+          "kind": "window export",
+          "line": 101
+        }
+      ]
+    },
+    {
+      "path": "src\\events.js",
+      "purpose": "DOM event binding helpers used throughout the app",
+      "sizeBytes": 1564,
+      "symbols": [
+        {
+          "name": "delegateEvent",
+          "kind": "function",
+          "line": 6
+        },
+        {
+          "name": "onClick",
+          "kind": "function",
+          "line": 18
+        },
+        {
+          "name": "onChange",
+          "kind": "function",
+          "line": 24
+        },
+        {
+          "name": "onInput",
+          "kind": "function",
+          "line": 30
+        },
+        {
+          "name": "onSubmit",
+          "kind": "function",
+          "line": 36
+        },
+        {
+          "name": "once",
+          "kind": "function",
+          "line": 46
+        },
+        {
+          "name": "SquirrelPlanEvents",
+          "kind": "window export",
+          "line": 56
+        }
+      ]
+    },
+    {
+      "path": "src\\ui.js",
+      "purpose": "Generic DOM show/hide/class helpers and theme helpers",
+      "sizeBytes": 2464,
+      "symbols": [
+        {
+          "name": "showElement",
+          "kind": "function",
+          "line": 6
+        },
+        {
+          "name": "hideElement",
+          "kind": "function",
+          "line": 11
+        },
+        {
+          "name": "toggleElement",
+          "kind": "function",
+          "line": 16
+        },
+        {
+          "name": "setElementText",
+          "kind": "function",
+          "line": 21
+        },
+        {
+          "name": "setElementHTML",
+          "kind": "function",
+          "line": 26
+        },
+        {
+          "name": "addClass",
+          "kind": "function",
+          "line": 31
+        },
+        {
+          "name": "removeClass",
+          "kind": "function",
+          "line": 36
+        },
+        {
+          "name": "toggleClass",
+          "kind": "function",
+          "line": 41
+        },
+        {
+          "name": "showSection",
+          "kind": "function",
+          "line": 46
+        },
+        {
+          "name": "updateSectionTitle",
+          "kind": "function",
+          "line": 54
+        },
+        {
+          "name": "applyTheme",
+          "kind": "function",
+          "line": 60
+        },
+        {
+          "name": "getCurrentTheme",
+          "kind": "function",
+          "line": 65
+        },
+        {
+          "name": "SquirrelPlanUI",
+          "kind": "window export",
+          "line": 70
+        }
+      ]
+    },
+    {
+      "path": "src\\utils.js",
+      "purpose": "Number formatting, parsing, and input formatting helpers",
+      "sizeBytes": 2728,
+      "symbols": [
+        {
+          "name": "parseFormattedNumber",
+          "kind": "function",
+          "line": 25
+        },
+        {
+          "name": "formatNumberForDisplay",
+          "kind": "function",
+          "line": 33
+        },
+        {
+          "name": "onFocusNumber",
+          "kind": "function",
+          "line": 44
+        },
+        {
+          "name": "onBlurNumber",
+          "kind": "function",
+          "line": 52
+        },
+        {
+          "name": "applyNumberFormatting",
+          "kind": "function",
+          "line": 59
+        },
+        {
+          "name": "getFormattingRules",
+          "kind": "function",
+          "line": 72
+        },
+        {
+          "name": "SquirrelPlanUtils",
+          "kind": "window export",
+          "line": 77
+        }
+      ]
+    },
+    {
+      "path": "src\\validation.js",
+      "purpose": "Form validation and inline error handling",
+      "sizeBytes": 2512,
+      "symbols": [
+        {
+          "name": "validateInputs",
+          "kind": "function",
+          "line": 6
+        },
+        {
+          "name": "clearValidation",
+          "kind": "function",
+          "line": 44
+        },
+        {
+          "name": "validateAndHighlight",
+          "kind": "function",
+          "line": 48
+        },
+        {
+          "name": "SquirrelPlanValidation",
+          "kind": "window export",
+          "line": 65
+        }
+      ]
+    }
+  ]
+}

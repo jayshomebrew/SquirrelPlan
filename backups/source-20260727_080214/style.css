@@ -64,16 +64,6 @@ th {
     padding-bottom: 0;
 }
 
-.allocation-guide {
-    display: flex;
-    gap: 0.5rem;
-    align-items: baseline;
-    padding: 0.9rem 1rem;
-    border-left: 4px solid var(--primary-color);
-    background: color-mix(in srgb, var(--primary-color) 10%, var(--surface-color));
-    border-radius: 0.25rem;
-}
-
 .delete-category-btn,
 .delete-period-btn {
     opacity: 1;
